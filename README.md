@@ -20,15 +20,15 @@ Nyx ist ein Echtzeit-Statusmonitor für [Tor](https://www.torproject.org/) im Te
 
 ## Installation
 
-**Aus PyPI:**
+**Aus diesem Fork (empfohlen):**
 ```bash
-pip install nyx
+pip install git+https://github.com/Hero9774/nyx_NG.git
 ```
 
 **Aus dem Quellcode:**
 ```bash
-git clone https://git.torproject.org/nyx.git
-cd nyx
+git clone https://github.com/Hero9774/nyx_NG.git
+cd nyx_NG
 pip install -e .
 ```
 

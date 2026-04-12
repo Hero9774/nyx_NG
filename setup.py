@@ -77,7 +77,7 @@ try:
     author = ATTR['author'],
     author_email = ATTR['contact'],
     url = ATTR['url'],
-    packages = ['nyx', 'nyx.panel'],
+    packages = ['nyx', 'nyx.panel', 'nyx.gui'],
     keywords = 'tor onion controller',
     install_requires = ['stem>=1.7.0'],
     package_data = {'nyx': ['settings/*']},
