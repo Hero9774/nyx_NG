@@ -84,6 +84,14 @@ def main(config):
   # If a password is provided via the user's nyx configuration that will be use, otherwise
   # users are prompted for a password if required.
 
+  # PyQt6-GUI starten wenn --gui angegeben – Verbindung übernimmt der GUI-Dialog
+  if args.gui:
+    _use_unicode()
+    _set_process_name()
+    import nyx.gui as _nyx_gui
+    _nyx_gui.start_gui(args)
+    return
+
   controller_password = config.get('password', None)
 
   if controller_password:

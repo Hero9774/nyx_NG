@@ -19,6 +19,7 @@ from nyx import tor_controller
 from nyx.curses import GREEN, MAGENTA, CYAN, BOLD, HIGHLIGHT
 
 USER_INPUT_BACKLOG_LIMIT = 100
+INTERPRETER_OUTPUT_LIMIT = 1000
 
 PROMPT = ('>>> ', (GREEN, BOLD))
 MULTILINE_PROMPT = ('... ', ())
@@ -121,6 +122,10 @@ class InterpreterPanel(nyx.panel.Panel):
   def _add_line(self, line):
     with self._wrapped_line_lock:
       self._lines.append(line)
+
+      if len(self._lines) > INTERPRETER_OUTPUT_LIMIT:
+        self._lines = self._lines[-INTERPRETER_OUTPUT_LIMIT:]
+        self._wrapped_lines = []  # Cache invalidieren, wird in _get_lines() neu aufgebaut
 
       wrapped_line = []
 

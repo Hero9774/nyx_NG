@@ -440,7 +440,14 @@ class GraphPanel(nyx.panel.Panel):
     controller = tor_controller()
     controller.add_event_listener(self._update_accounting, EventType.BW)
     controller.add_event_listener(self._update_stats, EventType.BW)
-    controller.add_status_listener(lambda *args: self.redraw())
+    self._redraw_listener = lambda *args: self.redraw()
+    controller.add_status_listener(self._redraw_listener)
+
+  def stop(self):
+    controller = tor_controller()
+    controller.remove_event_listener(self._update_accounting)
+    controller.remove_event_listener(self._update_stats)
+    controller.remove_status_listener(self._redraw_listener)
 
   def stat_options(self):
     return self._stats.keys()

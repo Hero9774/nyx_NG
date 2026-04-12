@@ -55,6 +55,10 @@ class HeaderPanel(nyx.panel.DaemonPanel):
 
     tor_controller().add_status_listener(self._reset_listener)
 
+  def stop(self):
+    tor_controller().remove_status_listener(self._reset_listener)
+    nyx.panel.DaemonPanel.stop(self)
+
   def show_message(self, message = None, *attr, **kwargs):
     """
     Sets the message displayed at the bottom of the header. If not called with

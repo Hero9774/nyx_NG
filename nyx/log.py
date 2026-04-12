@@ -441,7 +441,7 @@ class LogFilters(object):
     with self._lock:
       copy = LogFilters(max_filters = self._max_filters)
       copy._selected = self._selected
-      copy._past_filters = self._past_filters
+      copy._past_filters = collections.OrderedDict(self._past_filters)
 
       return copy
 

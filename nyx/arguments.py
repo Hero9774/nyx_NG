@@ -22,9 +22,10 @@ DEFAULT_ARGS = {
   'logged_events': 'NOTICE,WARN,ERR,NYX_NOTICE,NYX_WARNING,NYX_ERROR',
   'print_version': False,
   'print_help': False,
+  'gui': False,
 }
 
-OPT = 'i:s:c:d:l:vh'
+OPT = 'i:s:c:d:l:vhg'
 
 OPT_EXPANDED = [
   'interface=',
@@ -34,6 +35,7 @@ OPT_EXPANDED = [
   'log=',
   'version',
   'help',
+  'gui',
 ]
 
 HELP_OUTPUT = """
@@ -47,12 +49,14 @@ Terminal status monitor for Tor relays.
                                     defaults to: {config_path}
   -d, --debug LOG_PATH            writes all nyx logs to the given location
   -l, --log EVENTS                comma separated list of events to log
+  -g, --gui                       start the PyQt6 graphical interface
   -v, --version                   provides version information
   -h, --help                      presents this help
 
 Example:
 nyx -i 1643             attach to control port 1643
 nyx -l we -c /tmp/cfg   use this configuration file with 'WARN'/'ERR' events
+nyx --gui               start the graphical PyQt6 interface
 """.strip()
 
 
@@ -113,6 +117,8 @@ def parse(argv):
       args['print_version'] = True
     elif opt in ('-h', '--help'):
       args['print_help'] = True
+    elif opt in ('-g', '--gui'):
+      args['gui'] = True
 
   # If the user explicitely specified an endpoint then just try to connect to
   # that.

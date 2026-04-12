@@ -465,6 +465,7 @@ class Daemon(threading.Thread):
     """
 
     self._halt = True
+    tor_controller().remove_status_listener(self._tor_status_listener)
 
   def _tor_status_listener(self, controller, event_type, _):
     with self._process_lock:
@@ -829,7 +830,15 @@ class ConsensusTracker(object):
       if ns_response:
         self._update(ns_response)
 
-    controller.add_event_listener(lambda event: self._update(event.consensus_content), stem.control.EventType.NEWCONSENSUS)
+    self._consensus_listener = lambda event: self._update(event.consensus_content)
+    controller.add_event_listener(self._consensus_listener, stem.control.EventType.NEWCONSENSUS)
+
+  def close(self):
+    """
+    Removes the consensus event listener from the controller.
+    """
+
+    tor_controller().remove_event_listener(self._consensus_listener)
 
   def _update(self, consensus_content):
     start_time = time.time()
