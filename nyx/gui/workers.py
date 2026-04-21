@@ -18,6 +18,8 @@ import stem
 import stem.control
 import stem.util.log
 
+from nyx.country import COUNTRY_NAMES
+
 import nyx
 import nyx.tracker
 
@@ -317,7 +319,9 @@ class ConnectionWorker(QThread):
 
                 try:
                     country = controller.get_info('ip-to-country/%s' % conn.remote_address, '')
-                    entry['country'] = country.upper()
+                    code = country.upper()
+                    entry['country_code'] = code
+                    entry['country'] = COUNTRY_NAMES.get(code, code)
                 except Exception:
                     pass
 

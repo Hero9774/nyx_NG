@@ -80,7 +80,7 @@ try:
     packages = ['nyx', 'nyx.panel', 'nyx.gui'],
     keywords = 'tor onion controller',
     install_requires = ['stem>=1.7.0'],
-    package_data = {'nyx': ['settings/*']},
+    package_data = {'nyx': ['settings/*', 'flags/*.svg']},
     entry_points = {'console_scripts': ['nyx = nyx.__init__:main']},
     classifiers = [
       'Development Status :: 5 - Production/Stable',

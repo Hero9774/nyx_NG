@@ -113,7 +113,7 @@ except ImportError:
 
   sys.exit(1)
 
-__version__ = '2.1.0-dev'
+__version__ = '1.0'
 __release_date__ = 'January 12, 2019'
 __author__ = 'Damian Johnson'
 __contact__ = 'atagar@torproject.org'

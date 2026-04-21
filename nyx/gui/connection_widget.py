@@ -10,10 +10,11 @@ from PyQt6.QtWidgets import (
     QLabel, QLineEdit, QHeaderView, QDialog, QTextEdit, QPushButton,
     QDialogButtonBox
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor, QFont
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QColor, QFont, QIcon
 
 from nyx.gui.theme import CONNECTION_COLORS
+from nyx.flags import get_flag_pixmap
 
 
 class _DetailDialog(QDialog):
@@ -35,7 +36,7 @@ class _DetailDialog(QDialog):
             'Remote:       %s' % data.get('remote', ''),
             'Fingerprint:  %s' % data.get('fingerprint', '–'),
             'Nickname:     %s' % data.get('nickname', '–'),
-            'Land:         %s' % data.get('country', '–'),
+            'Land:         %s' % (data.get('country') or data.get('country_code') or '–'),
             'Laufzeit:     %ss' % data.get('uptime', 0),
         ]
         text.setPlainText('\n'.join(lines))
@@ -52,7 +53,7 @@ class ConnectionWidget(QWidget):
     """
 
     COLUMNS = ['Typ', 'Lokal', 'Remote', 'Nickname', 'Land', 'Laufzeit']
-    _DEFAULT_PROPORTIONS = [0.08, 0.22, 0.22, 0.20, 0.14, 0.14]
+    _DEFAULT_PROPORTIONS = [0.08, 0.20, 0.20, 0.18, 0.20, 0.14]
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -97,6 +98,8 @@ class ConnectionWidget(QWidget):
 
         self._table.setSortingEnabled(True)
         self._table.doubleClicked.connect(self._show_details)
+        self._table.verticalHeader().setDefaultSectionSize(26)
+        self._table.setIconSize(QSize(28, 21))
         layout.addWidget(self._table)
 
     def _on_section_resized(self, logical_index, old_size, new_size):
@@ -168,6 +171,13 @@ class ConnectionWidget(QWidget):
             for col, val in enumerate(values):
                 item = QTableWidgetItem(val)
                 item.setForeground(color)
+
+                if col == 4:
+                    code = data.get('country_code', '')
+                    pixmap = get_flag_pixmap(code) if code else None
+                    if pixmap:
+                        item.setIcon(QIcon(pixmap))
+
                 self._table.setItem(row, col, item)
 
         self._table.setSortingEnabled(True)
