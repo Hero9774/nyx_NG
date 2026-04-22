@@ -5,69 +5,77 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Tests ausführen (inkl. pyflakes/pycodestyle wenn installiert)
+# Run tests (including pyflakes/pycodestyle if installed)
 ./run_tests.py
 
-# App direkt starten (Curses-Interface)
+# Start app directly (curses interface)
 python -m nyx
 
-# Nach Installation (`pip install -e .`)
+# After installation (pip install -e .)
 nyx
 
-# GUI-Modus starten (benötigt PyQt6)
+# Start GUI mode (requires PyQt6)
 nyx --gui
 
-# Einzelnen Test ausführen
-python -m unittest test.<modul>
+# Run a single test
+python -m unittest test.<module>
 ```
 
 ## Architecture
 
-Nyx ist ein Terminal-Statusmonitor für Tor, der über den Tor Control Port kommuniziert (via `stem`-Library).
+Nyx is a terminal status monitor for Tor that communicates via the Tor Control Port (using the `stem` library).
 
-### Zwei UI-Schichten
+### Two UI layers
 
-- **`nyx/panel/`** — Curses-basiertes Terminal-Interface (Standard)
-- **`nyx/gui/`** — PyQt6-basiertes grafisches Interface (via `--gui`-Flag, optional)
+- **`nyx/panel/`** — Curses-based terminal interface (default)
+- **`nyx/gui/`** — PyQt6-based graphical interface (via `--gui` flag, optional)
 
-Beide Schichten teilen sich dieselben Core-Module für Daten und Logik.
+Both layers share the same core modules for data and logic.
 
-### Core-Singletons (`nyx/__init__.py`)
+### Core singletons (`nyx/__init__.py`)
 
-| Singleton | Funktion |
-|-----------|----------|
-| `nyx_interface()` | Gibt die `Interface`-Instanz zurück (UI-Controller, Seiten/Panels) |
-| `tor_controller()` | Gibt die aktive `stem`-Verbindung zum Tor Control Port zurück |
-| `cache()` | SQLite-basierter Cache für Relay-Informationen (Nickname, Adresse) |
+| Singleton | Purpose |
+|-----------|---------|
+| `nyx_interface()` | Returns the `Interface` instance (UI controller, pages/panels) |
+| `tor_controller()` | Returns the active `stem` connection to the Tor Control Port |
+| `cache()` | SQLite-based cache for relay information (nickname, address) |
 
-### Datenfluss
+### Data flow
 
 ```
 Tor Daemon (Control Port)
     ↓
 stem Library
     ↓
-nyx/tracker/    ← Background-Daemons (ConnectionTracker, ResourceTracker,
+nyx/tracker/    ← Background daemons (ConnectionTracker, ResourceTracker,
     ↓               PortUsageTracker, ConsensusTracker)
 nyx/cache
     ↓
-nyx/panel/ oder nyx/gui/   ← Rendering
+nyx/panel/ or nyx/gui/   ← Rendering
 ```
 
-### Wichtige Module
+### Key modules
 
-- **`tracker/`** — Background-Daemons, die Tor-Daten polling/event-getrieben sammeln
-- **`log.py`** — Event-Logging mit Deduplizierung (Konfiguration via `nyx/settings/dedup.cfg`)
-- **`curses.py`** — Abstraktionslayer für Terminal-UI (Farben, Input, Scrolling, Subwindows)
-- **`arguments.py`** — CLI-Argument-Parser
-- **`starter.py`** — Startup-Logik für beide UI-Modi
+- **`tracker/`** — Background daemons that collect Tor data via polling/events
+- **`log.py`** — Event logging with deduplication (configured via `nyx/settings/dedup.cfg`)
+- **`curses.py`** — Abstraction layer for terminal UI (colours, input, scrolling, subwindows)
+- **`arguments.py`** — CLI argument parser
+- **`starter.py`** — Startup logic for both UI modes
+- **`i18n.py`** — Internationalisation: `_()` function, loads `nyx/locale/<lang>.json`
 
-### Konfiguration
+### Configuration
 
-- Benutzer-Config: `~/.nyx/config`
-- Interne Defaults: `nyx/settings/attributes.cfg` (Farben, UI-Attribute)
-- Konfigurationszugriff via `stem.util.conf`-System; alle Defaults werden mit `@uses_settings`-Dekorator geladen
+- User config: `~/.nyx/nyxrc`
+- Internal defaults: `nyx/settings/attributes.cfg` (colours, UI attributes)
+- Config access via `stem.util.conf` system; all defaults loaded with `@uses_settings` decorator
 
-### Panel-Architektur (Curses)
+### Internationalisation
 
-Alle Panels in `nyx/panel/` erben von einer gemeinsamen Basisklasse und laufen als Daemon-Threads. Das `Interface`-Objekt organisiert Panels in Seiten; `header.py` ist immer sichtbar.
+Language is set via `language en` or `language de` in `~/.nyx/nyxrc`.
+Translation files live in `nyx/locale/<lang>.json`.  English is the built-in
+default (no JSON required).  All UI strings are wrapped with `_()` from
+`nyx.i18n`.
+
+### Panel architecture (curses)
+
+All panels in `nyx/panel/` inherit from a shared base class and run as daemon threads. The `Interface` object organises panels into pages; `header.py` is always visible.

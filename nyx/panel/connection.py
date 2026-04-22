@@ -17,7 +17,7 @@ import nyx.panel
 import nyx.popups
 import nyx.tracker
 
-from nyx.country import COUNTRY_NAMES
+from nyx.country import get_country_name
 
 from nyx import nyx_interface, tor_controller
 from nyx.curses import WHITE, NORMAL, BOLD, HIGHLIGHT
@@ -631,7 +631,7 @@ def _draw_address_column(subwindow, x, y, line, attr):
         dst += ' (%s)' % str_tools.crop(purpose, 26 - len(dst) - 3)
     elif tor_controller().get_info('ip-to-country/ipv4-available', '0') == '1' and not line.entry.is_private():
       locale_upper = line.locale.upper() if line.locale else None
-      locale_str = COUNTRY_NAMES.get(locale_upper, locale_upper) if locale_upper else '??'
+      locale_str = get_country_name(locale_upper) if locale_upper else '??'
       dst += ' (%s)' % locale_str
 
   src = '%-21s' % src
@@ -659,7 +659,7 @@ def _draw_details(subwindow, selected):
     address = '<scrubbed>' if selected.entry.is_private() else selected.connection.remote_address
     subwindow.addstr(2, 1, 'address: %s:%s' % (address, selected.connection.remote_port), *attr)
     locale_upper = selected.locale.upper() if selected.locale and not selected.entry.is_private() else None
-    locale_str = COUNTRY_NAMES.get(locale_upper, locale_upper) if locale_upper else '??'
+    locale_str = get_country_name(locale_upper) if locale_upper else '??'
     subwindow.addstr(2, 2, 'locale: %s' % locale_str, *attr)
 
     matches = nyx.tracker.get_consensus_tracker().get_relay_fingerprints(selected.connection.remote_address)

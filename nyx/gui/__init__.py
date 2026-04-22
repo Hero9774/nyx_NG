@@ -2,22 +2,22 @@
 # See LICENSE for licensing information
 
 """
-PyQt6-basierte GUI für nyx.
-
-Starten mit: nyx --gui
+PyQt6-based GUI for nyx. Start with: nyx --gui
 """
 
 import sys
 
 import stem.util.log
 
+from nyx.i18n import _
+
 DEFAULT_PORT = 9030
 
 
 def _ask_control_port(app, style):
     """
-    Zeigt einen Startdialog zur Eingabe des Kontrollports.
-    Gibt den gewählten Port zurück, oder None bei Abbruch.
+    Shows a startup dialog to enter the control port.
+    Returns the chosen port, or None if cancelled.
     """
     from PyQt6.QtWidgets import (
         QDialog, QVBoxLayout, QHBoxLayout, QLabel,
@@ -27,7 +27,7 @@ def _ask_control_port(app, style):
     from PyQt6.QtGui import QIntValidator
 
     dlg = QDialog()
-    dlg.setWindowTitle('Nyx – Verbindung')
+    dlg.setWindowTitle(_('Nyx – Connection'))
     dlg.setFixedSize(320, 140)
     dlg.setWindowFlags(dlg.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
 
@@ -35,7 +35,7 @@ def _ask_control_port(app, style):
     layout.setContentsMargins(20, 20, 20, 16)
     layout.setSpacing(12)
 
-    layout.addWidget(QLabel('Tor Kontrollport:'))
+    layout.addWidget(QLabel(_('Tor Control Port:')))
 
     port_input = QLineEdit(str(DEFAULT_PORT))
     port_input.setValidator(QIntValidator(1, 65535, dlg))
@@ -44,8 +44,8 @@ def _ask_control_port(app, style):
 
     btn_row = QHBoxLayout()
     btn_row.setSpacing(8)
-    cancel_btn = QPushButton('Abbrechen')
-    connect_btn = QPushButton('Verbinden')
+    cancel_btn = QPushButton(_('Cancel'))
+    connect_btn = QPushButton(_('Connect'))
     connect_btn.setDefault(True)
     btn_row.addStretch()
     btn_row.addWidget(cancel_btn)
@@ -61,8 +61,8 @@ def _ask_control_port(app, style):
             if not (1 <= port <= 65535):
                 raise ValueError()
         except ValueError:
-            QMessageBox.warning(dlg, 'Ungültiger Port',
-                                'Bitte einen gültigen Port (1–65535) eingeben.')
+            QMessageBox.warning(dlg, _('Invalid Port'),
+                                _('Please enter a valid port (1–65535).'))
             return
         result[0] = port
         dlg.accept()
@@ -78,16 +78,15 @@ def _ask_control_port(app, style):
 
 def start_gui(args):
     """
-    Startet die PyQt6-Oberfläche.
-    Die Tor-Verbindung wird über den Startdialog hergestellt.
+    Starts the PyQt6 interface.
+    The Tor connection is established via the startup dialog.
 
-    :param args: geparste Kommandozeilenargumente (nyx.arguments.Args)
+    :param args: parsed command line arguments (nyx.arguments.Args)
     """
     try:
         from PyQt6.QtWidgets import QApplication, QMessageBox
     except ImportError:
-        print('PyQt6 ist nicht installiert. Bitte installieren mit:\n'
-              '  pip install PyQt6')
+        print(_('PyQt6 is not installed. Please install with:\n  pip install PyQt6'))
         sys.exit(1)
 
     from nyx.gui.main_window import MainWindow
@@ -98,7 +97,6 @@ def start_gui(args):
     app.setApplicationName('Nyx Tor Monitor')
     app.setStyleSheet(DARK_STYLE)
 
-    # Kontrollport abfragen – Schleife bis Verbindung klappt oder Abbruch
     controller = None
     while controller is None:
         port = _ask_control_port(app, DARK_STYLE)
@@ -108,16 +106,15 @@ def start_gui(args):
         try:
             controller = init_controller(control_port=('127.0.0.1', port))
             if controller is None:
-                raise RuntimeError('Keine Verbindung möglich.')
+                raise RuntimeError(_('No connection possible.'))
         except Exception as exc:
             QMessageBox.critical(
                 None,
-                'Verbindungsfehler',
-                'Konnte nicht mit Kontrollport %d verbinden:\n%s' % (port, exc)
+                _('Connection Error'),
+                _('Could not connect to control port %d:\n%s') % (port, exc)
             )
             controller = None
 
-    # Tor-Tracker initialisieren – get_*_tracker() startet sie beim ersten Aufruf bereits
     import nyx.tracker
     nyx.tracker.get_connection_tracker()
     nyx.tracker.get_resource_tracker()
@@ -128,10 +125,9 @@ def start_gui(args):
 
     exit_code = app.exec()
 
-    # Aufräumen
     try:
         nyx.tracker.stop_trackers()
     except Exception as exc:
-        stem.util.log.debug('Fehler beim Stoppen der Tracker: %s' % exc)
+        stem.util.log.debug(_('Error stopping trackers: %s') % exc)
 
     sys.exit(exit_code)

@@ -17,6 +17,7 @@ import time
 import nyx
 import nyx.arguments
 import nyx.curses
+import nyx.i18n
 import nyx.tracker
 
 import stem
@@ -52,6 +53,7 @@ def main(config):
   try:
     args = nyx.arguments.parse(sys.argv[1:])
     config.set('logged_events', args.logged_events)
+    nyx._config_path = args.config
   except ValueError as exc:
     print(exc)
     sys.exit(1)
@@ -71,20 +73,22 @@ def main(config):
       print('Unable to write to our debug log file (%s): %s' % (args.debug_path, exc.strerror))
       sys.exit(1)
 
-  if os.path.exists(args.config):
+  config_exists = os.path.exists(args.config)
+
+  if config_exists:
     try:
       config.load(args.config)
     except IOError as exc:
       stem.util.log.warn('Failed to load configuration (using defaults): "%s"' % exc.strerror)
-  else:
-    # TODO: move this url to 'nyx_config.sample' when we're about to issue another release
 
+  nyx.i18n.set_language(config.get('language', 'en'))
+
+  if not config_exists:
     stem.util.log.notice('No nyx configuration loaded, using defaults. You can customize nyx by placing a configuration file at %s (see https://nyx.torproject.org/nyxrc.sample for its options).' % args.config)
 
   # If a password is provided via the user's nyx configuration that will be use, otherwise
   # users are prompted for a password if required.
 
-  # PyQt6-GUI starten wenn --gui angegeben – Verbindung übernimmt der GUI-Dialog
   if args.gui:
     _use_unicode()
     _set_process_name()

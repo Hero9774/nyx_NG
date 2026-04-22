@@ -2,7 +2,7 @@
 # See LICENSE for licensing information
 
 """
-Control-Port-Shell: interaktiver Tor-Kommando-Interpreter.
+Control port shell: interactive Tor command interpreter.
 """
 
 from PyQt6.QtWidgets import (
@@ -18,13 +18,14 @@ import stem.interpreter.autocomplete
 import stem.util.log
 
 from nyx import tor_controller
+from nyx.i18n import _
 
 HISTORY_LIMIT = 100
 
 
 class _CommandRunner(QThread):
-    """Führt ein Tor-Kommando im Hintergrund aus."""
-    result_ready = pyqtSignal(str, str)  # command, response
+    """Runs a Tor command in the background."""
+    result_ready = pyqtSignal(str, str)
 
     def __init__(self, interpreter, command, parent=None):
         super().__init__(parent)
@@ -36,15 +37,13 @@ class _CommandRunner(QThread):
             response = self._interpreter.run_command(self._command)
             self.result_ready.emit(self._command, response or '')
         except stem.SocketClosed:
-            self.result_ready.emit(self._command, '[Verbindung getrennt]')
+            self.result_ready.emit(self._command, _('[Connection closed]'))
         except Exception as exc:
-            self.result_ready.emit(self._command, '[Fehler: %s]' % exc)
+            self.result_ready.emit(self._command, _('[Error: %s]') % exc)
 
 
 class InterpreterWidget(QWidget):
-    """
-    Tab-Widget für den Tor-Control-Port-Interpreter.
-    """
+    """Tab widget for the Tor control port interpreter."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -60,34 +59,34 @@ class InterpreterWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
 
-        # Ausgabe
         self._output = QTextEdit()
         self._output.setReadOnly(True)
         self._output.setFont(QFont('Courier New', 12))
         self._output.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
         layout.addWidget(self._output)
 
-        # Eingabe-Zeile
         input_layout = QHBoxLayout()
         self._prompt_label = QLabel('>>> ')
-        self._prompt_label.setStyleSheet('color: #2ecc71; font-family: "Courier New"; font-size: 12px; font-weight: bold;')
+        self._prompt_label.setStyleSheet(
+            'color: #2ecc71; font-family: "Courier New"; font-size: 12px; font-weight: bold;'
+        )
         input_layout.addWidget(self._prompt_label)
 
         self._input = QLineEdit()
         self._input.setFont(QFont('Courier New', 12))
-        self._input.setPlaceholderText('Tor-Kommando eingeben (Tab = Autovervollständigung)…')
+        self._input.setPlaceholderText(_('Enter Tor command (Tab = autocomplete)…'))
         self._input.returnPressed.connect(self._execute)
         self._input.installEventFilter(self)
         input_layout.addWidget(self._input)
 
-        clear_btn = QPushButton('Leeren')
+        clear_btn = QPushButton(_('Clear'))
         clear_btn.setMaximumWidth(80)
         clear_btn.clicked.connect(self._clear)
         input_layout.addWidget(clear_btn)
 
         layout.addLayout(input_layout)
 
-        hint = QLabel('↑↓ History  |  Tab: Autocomplete  |  Befehle: GETINFO, GETCONF, SIGNAL, SETCONF, …')
+        hint = QLabel(_('↑↓ History  |  Tab: Autocomplete  |  Commands: GETINFO, GETCONF, SIGNAL, SETCONF, …'))
         hint.setStyleSheet('color: #555577; font-size: 10px;')
         layout.addWidget(hint)
 
@@ -97,11 +96,11 @@ class InterpreterWidget(QWidget):
             try:
                 self._autocompleter = stem.interpreter.autocomplete.Autocompleter(controller)
                 self._interpreter = stem.interpreter.commands.ControlInterpreter(controller)
-                self._print_line('Tor Control-Port Shell bereit. Tippe HELP für Hilfe.', '#9b59b6')
+                self._print_line(_('Tor Control Port Shell ready. Type HELP for help.'), '#9b59b6')
             except Exception as exc:
-                self._print_line('[Fehler beim Initialisieren: %s]' % exc, '#e74c3c')
+                self._print_line(_('[Error initializing: %s]') % exc, '#e74c3c')
         else:
-            self._print_line('[Kein Tor-Controller verfügbar]', '#e74c3c')
+            self._print_line(_('[No Tor controller available]'), '#e74c3c')
 
     def _print_line(self, text, color='#e0e0e0'):
         cursor = self._output.textCursor()
@@ -117,7 +116,6 @@ class InterpreterWidget(QWidget):
         if not command:
             return
 
-        # History
         if not self._history or self._history[-1] != command:
             self._history.append(command)
             if len(self._history) > HISTORY_LIMIT:
@@ -128,10 +126,9 @@ class InterpreterWidget(QWidget):
         self._print_line('>>> ' + command, '#2ecc71')
 
         if self._interpreter is None:
-            self._print_line('[Kein Interpreter verfügbar]', '#e74c3c')
+            self._print_line(_('[No interpreter available]'), '#e74c3c')
             return
 
-        # Im Hintergrund ausführen
         self._runner = _CommandRunner(self._interpreter, command)
         self._runner.result_ready.connect(self._on_result)
         self._runner.start()

@@ -2,7 +2,7 @@
 # See LICENSE for licensing information
 
 """
-Konfigurationstabelle: zeigt Tor-Optionen, ermöglicht Bearbeitung.
+Configuration table: displays Tor options and allows editing.
 """
 
 from PyQt6.QtWidgets import (
@@ -15,14 +15,12 @@ from PyQt6.QtGui import QColor, QFont
 
 import stem.util.log
 from nyx import tor_controller
+from nyx.i18n import _
 
 
 class ConfigWidget(QWidget):
-    """
-    Tab-Widget für Tor-Konfigurationsoptionen.
-    """
+    """Tab widget for Tor configuration options."""
 
-    COLUMNS = ['Option', 'Wert', 'Typ', 'Geändert']
     _DEFAULT_PROPORTIONS = [0.32, 0.40, 0.16, 0.12]
 
     def __init__(self, parent=None):
@@ -38,31 +36,30 @@ class ConfigWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
 
-        # Toolbar
         toolbar = QHBoxLayout()
-        toolbar.addWidget(QLabel('Suche:'))
+        toolbar.addWidget(QLabel(_('Search:')))
 
         self._search = QLineEdit()
-        self._search.setPlaceholderText('Optionsname…')
+        self._search.setPlaceholderText(_('Option name…'))
         self._search.setMaximumWidth(250)
         self._search.textChanged.connect(self._apply_filter)
         toolbar.addWidget(self._search)
 
-        self._set_only_cb = QCheckBox('Nur geänderte')
+        self._set_only_cb = QCheckBox(_('Only modified'))
         self._set_only_cb.toggled.connect(self._toggle_set_only)
         toolbar.addWidget(self._set_only_cb)
 
         toolbar.addStretch()
 
-        self._count_label = QLabel('Lade…')
+        self._count_label = QLabel(_('Loading…'))
         self._count_label.setStyleSheet('color: #6666aa;')
         toolbar.addWidget(self._count_label)
 
         layout.addLayout(toolbar)
 
-        # Tabelle
-        self._table = QTableWidget(0, len(self.COLUMNS))
-        self._table.setHorizontalHeaderLabels(self.COLUMNS)
+        columns = [_('Option'), _('Value'), _('Type'), _('Modified')]
+        self._table = QTableWidget(0, len(columns))
+        self._table.setHorizontalHeaderLabels(columns)
         self._table.setFont(QFont('Courier New', 11))
         self._table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -80,7 +77,7 @@ class ConfigWidget(QWidget):
 
         layout.addWidget(self._table)
 
-        hint = QLabel('Doppelklick: Wert bearbeiten  |  Rechtsklick: Zurücksetzen')
+        hint = QLabel(_('Double-click: edit value  |  Right-click: reset'))
         hint.setStyleSheet('color: #555577; font-size: 11px;')
         layout.addWidget(hint)
 
@@ -140,7 +137,7 @@ class ConfigWidget(QWidget):
             shown += 1
 
         self._table.setSortingEnabled(True)
-        self._count_label.setText('%d / %d Optionen' % (shown, len(self._all_data)))
+        self._count_label.setText(_('%d / %d options') % (shown, len(self._all_data)))
 
     def _fill_row(self, row, data):
         name = data.get('name', '')
@@ -169,8 +166,8 @@ class ConfigWidget(QWidget):
             current = ''
 
         new_val, ok = QInputDialog.getText(
-            self, 'Wert bearbeiten',
-            'Neuer Wert für "%s":' % name,
+            self, _('Edit Value'),
+            _('New value for "%s":') % name,
             text=current
         )
 
@@ -178,17 +175,16 @@ class ConfigWidget(QWidget):
             try:
                 controller = tor_controller()
                 if controller is None:
-                    QMessageBox.warning(self, 'Fehler', 'Keine Tor-Verbindung verfügbar.')
+                    QMessageBox.warning(self, _('Error'), _('No Tor connection available.'))
                     return
                 controller.set_conf(name, new_val)
-                # Lokale Anzeige aktualisieren
                 value_item.setText(new_val)
                 name_item.setForeground(QColor('#7b2fbe'))
                 self._table.item(row, 3).setText('✓')
-                stem.util.log.notice('Konfiguration gesetzt: %s = %s' % (name, new_val))
+                stem.util.log.notice('Config set: %s = %s' % (name, new_val))
             except Exception as exc:
-                QMessageBox.warning(self, 'Fehler',
-                                    'Konnte "%s" nicht setzen:\n%s' % (name, exc))
+                QMessageBox.warning(self, _('Error'),
+                                    _('Could not set "%s":\n%s') % (name, exc))
 
     def _context_menu(self, pos):
         row = self._table.rowAt(pos.y())
@@ -201,27 +197,25 @@ class ConfigWidget(QWidget):
 
         name = name_item.text()
         menu = QMenu(self)
-        reset_action = menu.addAction('"%s" zurücksetzen' % name)
+        reset_action = menu.addAction(_('Reset "%s"') % name)
         action = menu.exec(self._table.mapToGlobal(pos))
 
         if action == reset_action:
             try:
                 controller = tor_controller()
                 if controller is None:
-                    QMessageBox.warning(self, 'Fehler', 'Keine Tor-Verbindung verfügbar.')
+                    QMessageBox.warning(self, _('Error'), _('No Tor connection available.'))
                     return
                 controller.reset_conf(name)
                 self._table.item(row, 1).setText('<default>')
                 name_item.setForeground(QColor('#e0e0e0'))
                 self._table.item(row, 3).setText('')
-                stem.util.log.notice('Konfiguration zurückgesetzt: %s' % name)
+                stem.util.log.notice('Config reset: %s' % name)
             except Exception as exc:
-                QMessageBox.warning(self, 'Fehler',
-                                    'Konnte "%s" nicht zurücksetzen:\n%s' % (name, exc))
+                QMessageBox.warning(self, _('Error'),
+                                    _('Could not reset "%s":\n%s') % (name, exc))
 
     def load_config(self, config_list):
-        """
-        Wird vom ConfigWorker aufgerufen (Signal-Slot).
-        """
+        """Called by ConfigWorker via signal-slot."""
         self._all_data = config_list
         self._rebuild_table()

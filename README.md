@@ -1,209 +1,212 @@
 # Nyx NG — Tor Command-line Monitor
 
-Nyx ist ein Echtzeit-Statusmonitor für [Tor](https://www.torproject.org/) im Terminal. Er verbindet sich über den Tor Control Port und zeigt detaillierte Informationen zu Bandbreite, Verbindungen, Logs und der Konfiguration deines Relays an.
+Nyx is a real-time status monitor for [Tor](https://www.torproject.org/) in the terminal. It connects via the Tor Control Port and displays detailed information about bandwidth, connections, logs and the configuration of your relay.
 
-Dieses Repository ist ein Fork des originalen [nyx](https://git.torproject.org/nyx.git) mit folgenden Erweiterungen:
-- **PyQt6-GUI** (`--gui`): grafisches Interface als Alternative zur Terminal-Ansicht
-- Python 3.11+ Kompatibilität
-
----
-
-## Funktionsübersicht
-
-| Panel | Beschreibung |
-|-------|--------------|
-| **Header** | Immer sichtbar. Zeigt Tor-Version, IP-Adresse, Relay-Flags, Bandbreite, CPU/RAM und Accounting-Status. |
-| **Graph** | Echtzeit-Graphen für Bandbreite (Up/Down), Verbindungsanzahl oder CPU/Speicher-Auslastung. |
-| **Verbindungen** | Liste aller aktiven Tor-Verbindungen mit Typ, Ziel, Land und Nickname. |
-| **Logs** | Tor-Event-Log in Echtzeit mit einstellbaren Log-Leveln und Deduplizierung. |
-| **Konfiguration** | Übersicht und Live-Editor für alle Tor-Konfigurationsoptionen. |
-| **Torrc** | Syntaxhervorhebung der aktiven `torrc`-Datei. |
-| **Interpreter** | Direktzugriff auf den Tor Control Port mit Tab-Vervollständigung und Verlauf. |
+This repository is a fork of the original [nyx](https://git.torproject.org/nyx.git) with the following additions:
+- **PyQt6 GUI** (`--gui`): graphical interface as an alternative to the terminal view
+- Python 3.11+ compatibility
 
 ---
 
-## Voraussetzungen
+## Feature Overview
 
-- Python 3.8 oder neuer
+| Panel | Description |
+|-------|-------------|
+| **Header** | Always visible. Shows Tor version, IP address, relay flags, bandwidth, CPU/RAM and accounting status. |
+| **Graph** | Real-time graphs for bandwidth (up/down), connection count or CPU/memory usage. |
+| **Connections** | List of all active Tor connections with type, destination, country and nickname. |
+| **Log** | Tor event log in real time with configurable log levels and deduplication. |
+| **Configuration** | Overview and live editor for all Tor configuration options. |
+| **Torrc** | Syntax-highlighted view of the active `torrc` file. |
+| **Interpreter** | Direct access to the Tor Control Port with tab completion and history. |
+
+---
+
+## Requirements
+
+- Python 3.8 or newer
 - [`stem`](https://stem.torproject.org/) >= 1.7.0
-- Für den GUI-Modus: `PyQt6`
+- For GUI mode: `PyQt6`
 
-**Tor muss mit aktiviertem Control Port konfiguriert sein** (`/etc/tor/torrc`):
+**Tor must be configured with an active Control Port** (`/etc/tor/torrc`):
 ```
 ControlPort 9051
 CookieAuthentication 1
 ```
-Danach Tor neu starten: `sudo systemctl restart tor`
+Then restart Tor: `sudo systemctl restart tor`
 
 ---
 
 ## Installation
 
-### Empfohlen: pipx (kein venv nötig)
+### Recommended: pipx (no venv needed)
 
 ```bash
-# pipx installieren falls nicht vorhanden
+# Install pipx if not present
 sudo apt install pipx
 
-# Nyx NG installieren
+# Install Nyx NG
 pipx install git+https://github.com/Hero9774/nyx_NG.git
 
-# Für GUI-Modus zusätzlich PyQt6 injizieren
+# For GUI mode also inject PyQt6
 pipx inject nyx PyQt6
 ```
 
-### Aus dem Quellcode (für Entwicklung)
+### From source (for development)
 
 ```bash
 git clone https://github.com/Hero9774/nyx_NG.git
 cd nyx_NG
 
-# Virtuelle Umgebung erstellen
+# Create virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Abhängigkeiten installieren
+# Install dependencies
 pip install -e .
-pip install PyQt6          # optional, nur für --gui
+pip install PyQt6          # optional, only for --gui
 
-# Starten
+# Start
 nyx
 ```
 
-### Debian/Ubuntu Paket
+### Debian/Ubuntu package
 
 ```bash
-sudo apt install nyx       # installiert die offizielle Version ohne GUI-Erweiterung
+sudo apt install nyx       # installs the official version without GUI extension
 ```
 
 ---
 
-## Verwendung
+## Usage
 
 ```bash
-# Starten (verbindet automatisch mit lokalem Control Port)
+# Start (connects automatically to local Control Port)
 nyx
 
-# Grafisches Interface (PyQt6 erforderlich)
+# Graphical interface (PyQt6 required)
 nyx --gui
 
-# Anderen Control Port angeben
+# Specify a different Control Port
 nyx -i 9051
 nyx -i 192.168.1.1:9051
 
-# Unix Domain Socket verwenden
+# Use Unix Domain Socket
 nyx -s /var/run/tor/control
 
-# Eigene Konfigurationsdatei
-nyx -c ~/.nyx/config
+# Use a custom configuration file
+nyx -c ~/.nyx/nyxrc
 
-# Nur bestimmte Log-Events anzeigen
+# Show only specific log events
 nyx -l WARN,ERR
 
-# Debug-Ausgabe in Datei schreiben
+# Write debug output to file
 nyx -d /tmp/nyx-debug.log
 ```
 
 ---
 
-## Tastaturkürzel
+## Keyboard Shortcuts
 
-### Global (auf allen Seiten)
+### Global (on all pages)
 
-| Taste | Funktion |
-|-------|----------|
-| `←` / `→` | Zwischen Seiten wechseln |
-| `h` | Hilfe anzeigen |
-| `m` | Menü öffnen |
-| `p` | Anzeige pausieren / fortsetzen |
-| `x` | Tor neu laden (SIGHUP) |
-| `q` | Nyx beenden |
+| Key | Action |
+|-----|--------|
+| `←` / `→` | Switch between pages |
+| `h` | Show help |
+| `m` | Open menu |
+| `p` | Pause / resume display |
+| `x` | Reload Tor (SIGHUP) |
+| `q` | Quit nyx |
 
-### Im Graph-Panel
+### In the Graph panel
 
-| Taste | Funktion |
-|-------|----------|
-| `↑` / `↓` | Statistik wechseln (Bandbreite / Verbindungen / Ressourcen) |
-| `i` | Zeitintervall ändern |
-| `s` | Skalierungsmodus umschalten |
-| `Enter` | Detailansicht öffnen |
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` | Switch statistic (bandwidth / connections / resources) |
+| `i` | Change time interval |
+| `s` | Toggle scaling mode |
+| `Enter` | Open detail view |
 
-### Im Verbindungs-Panel
+### In the Connections panel
 
-| Taste | Funktion |
-|-------|----------|
-| `↑` / `↓` | Verbindung auswählen |
-| `Enter` | Details anzeigen |
-| `s` | Sortierung ändern |
-| `d` | Descriptor anzeigen |
-| `c` | Nach Verbindungstyp filtern |
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` | Select connection |
+| `Enter` | Show details |
+| `s` | Change sort order |
+| `d` | Show descriptor |
+| `c` | Filter by connection type |
 
-### Im Log-Panel
+### In the Log panel
 
-| Taste | Funktion |
-|-------|----------|
-| `↑` / `↓` / `PgUp` / `PgDn` | Scrollen |
-| `f` | Filter setzen |
-| `e` | Event-Typen auswählen |
-| `a` | Duplikate ein-/ausblenden |
-| `c` | Log leeren |
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` / `PgUp` / `PgDn` | Scroll |
+| `f` | Set filter |
+| `e` | Select event types |
+| `a` | Toggle duplicate hiding |
+| `c` | Clear log |
 
-### Im Konfigurations-Panel
+### In the Configuration panel
 
-| Taste | Funktion |
-|-------|----------|
-| `↑` / `↓` | Option auswählen |
-| `Enter` | Option bearbeiten |
-| `s` | Sortierung ändern |
-| `f` | Filtern |
-| `w` | Konfiguration in torrc speichern |
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` | Select option |
+| `Enter` | Edit option |
+| `s` | Change sort order |
+| `f` | Filter |
+| `w` | Save configuration to torrc |
 
-### Im Interpreter-Panel
+### In the Interpreter panel
 
-| Taste | Funktion |
-|-------|----------|
-| `Enter` | Befehl senden |
-| `↑` / `↓` | Befehlsverlauf |
-| `Tab` | Auto-Vervollständigung |
+| Key | Action |
+|-----|--------|
+| `Enter` | Send command |
+| `↑` / `↓` | Command history |
+| `Tab` | Auto-completion |
 
 ---
 
-## Konfiguration
+## Configuration
 
-Benutzer-Konfiguration: `~/.nyx/config`
+User configuration: `~/.nyx/nyxrc`
 
 ```ini
-# Anzahl gespeicherter Log-Einträge
-cache.log_size 1000
+# Interface language: en (English) or de (German)
+language en
 
-# Standard-Graph beim Start (bandwidth, connections, resources)
+# Number of stored log entries
+max_log_size 1000
+
+# Default graph at startup (bandwidth, connections, resources)
 graph_stat bandwidth
 
-# Duplikate im Log ausblenden
-features.log.showDuplicateEntries false
+# Hide duplicate log entries
+deduplicate_log true
 ```
 
-Kommentierte Beispielkonfiguration: [`nyxrc.sample`](nyxrc.sample)
+Full commented example: [`nyxrc.sample`](web/nyxrc.sample)
 
 ---
 
-## Alle CLI-Optionen
+## All CLI Options
 
 ```
 nyx [OPTION]
 
-  -i, --interface [ADRESSE:]PORT   Control Port (Standard: 127.0.0.1:9051)
-  -s, --socket PFAD                Unix Domain Socket (Standard: /var/run/tor/control)
-  -c, --config PFAD                Konfigurationsdatei (Standard: ~/.nyx/config)
-  -d, --debug PFAD                 Debug-Logs in Datei schreiben
-  -l, --log EVENTS                 Kommagetrennte Event-Liste (z.B. NOTICE,WARN,ERR)
-  -g, --gui                        PyQt6-GUI starten
-  -v, --version                    Versionsinformation anzeigen
-  -h, --help                       Hilfe anzeigen
+  -i, --interface [ADDRESS:]PORT   Control Port (default: 127.0.0.1:9051)
+  -s, --socket PATH                Unix Domain Socket (default: /var/run/tor/control)
+  -c, --config PATH                Configuration file (default: ~/.nyx/nyxrc)
+  -d, --debug PATH                 Write debug logs to file
+  -l, --log EVENTS                 Comma-separated event list (e.g. NOTICE,WARN,ERR)
+  -g, --gui                        Start PyQt6 GUI
+  -v, --version                    Show version information
+  -h, --help                       Show help
 ```
 
 ---
 
-## Lizenz
+## License
 
-GPLv3 — basierend auf [nyx](https://nyx.torproject.org/) von Damian Johnson und The Tor Project.
+GPLv3 — based on [nyx](https://nyx.torproject.org/) by Damian Johnson and The Tor Project.

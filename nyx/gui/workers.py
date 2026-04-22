@@ -2,8 +2,8 @@
 # See LICENSE for licensing information
 
 """
-QThread-Worker für asynchrone Datenabfragen vom Tor-Controller.
-Alle Signale werden im Main-Thread verarbeitet (Qt.QueuedConnection).
+QThread workers for async Tor controller queries.
+All signals are processed in the main thread (Qt.QueuedConnection).
 """
 
 import time
@@ -18,16 +18,16 @@ import stem
 import stem.control
 import stem.util.log
 
-from nyx.country import COUNTRY_NAMES
+from nyx.country import get_country_name
+from nyx.i18n import _
 
 import nyx
 import nyx.tracker
 
 from nyx import tor_controller
 
-# Puffer für NYX-Log-Nachrichten (nyx/stem Python-Logging).
-# Wird beim Import dieses Moduls eingerichtet, damit frühe Meldungen
-# (z. B. "No nyx configuration loaded") nicht verloren gehen.
+# Buffer for NYX log messages (nyx/stem Python logging).
+# Set up at import time so early messages are not lost.
 _NYX_LOG_BUFFER = queue.Queue()
 _NYX_LOGGER = logging.handlers.QueueHandler(_NYX_LOG_BUFFER)
 _NYX_LOGGER.setLevel(logging.DEBUG)
@@ -35,9 +35,7 @@ stem.util.log.get_logger().addHandler(_NYX_LOGGER)
 
 
 class HeaderWorker(QThread):
-    """
-    Aktualisiert die Header-Statusleiste alle 2 Sekunden.
-    """
+    """Updates the header status bar every 2 seconds."""
 
     status_updated = pyqtSignal(dict)
 
@@ -51,7 +49,7 @@ class HeaderWorker(QThread):
                 data = self._collect()
                 self.status_updated.emit(data)
             except Exception as exc:
-                stem.util.log.debug('HeaderWorker Fehler: %s' % exc)
+                stem.util.log.debug(_('HeaderWorker error: %s') % exc)
             for _ in range(20):  # 2 Sekunden in 0.1s-Schritten
                 if self._halt:
                     return
@@ -120,9 +118,7 @@ class HeaderWorker(QThread):
 
 
 class BandwidthWorker(QThread):
-    """
-    Liefert Bandbreitendaten bei jedem BW-Event (ca. 1x/Sekunde).
-    """
+    """Delivers bandwidth data on each BW event (~1/second)."""
 
     bw_updated = pyqtSignal(int, int)  # bytes_read, bytes_written
 
@@ -165,9 +161,7 @@ class BandwidthWorker(QThread):
 
 
 class LogWorker(QThread):
-    """
-    Liefert Tor- und nyx-Log-Einträge in Echtzeit.
-    """
+    """Delivers Tor and nyx log entries in real time."""
 
     log_entry = pyqtSignal(object)  # nyx.log.LogEntry
 
@@ -182,7 +176,7 @@ class LogWorker(QThread):
         import nyx.log
         import stem.response.events
 
-        # NYX_*-Events: vergangene Nachrichten aus dem Puffer leeren
+        # flush past NYX_* messages from the buffer
         while not _NYX_LOG_BUFFER.empty():
             try:
                 record = _NYX_LOG_BUFFER.get_nowait()
@@ -194,7 +188,7 @@ class LogWorker(QThread):
             except Exception:
                 pass
 
-        # NYX_*-Events: zukünftige Nachrichten direkt weiterleiten
+        # forward future NYX_* messages directly
         _original_emit = _NYX_LOGGER.emit
 
         def _nyx_emit(record):
@@ -207,7 +201,7 @@ class LogWorker(QThread):
 
         _NYX_LOGGER.emit = _nyx_emit
 
-        # Historische Tor-Logs aus der Logdatei laden
+        # load historical Tor logs from the log file
         try:
             log_location = nyx.log.log_file_path(tor_controller())
             if log_location:
@@ -215,7 +209,7 @@ class LogWorker(QThread):
                     if not self._halt:
                         self.log_entry.emit(entry)
         except Exception as exc:
-            stem.util.log.debug('LogWorker: Historische Logs nicht lesbar: %s' % exc)
+            stem.util.log.debug(_('LogWorker: Historical logs not readable: %s') % exc)
 
         # Live Tor-Events registrieren
         def _on_log(event):
@@ -252,9 +246,7 @@ class LogWorker(QThread):
 
 
 class ConnectionWorker(QThread):
-    """
-    Aktualisiert die Verbindungsliste alle 5 Sekunden.
-    """
+    """Updates the connection list every 5 seconds."""
 
     connections_updated = pyqtSignal(list)
 
@@ -268,7 +260,7 @@ class ConnectionWorker(QThread):
                 data = self._collect()
                 self.connections_updated.emit(data)
             except Exception as exc:
-                stem.util.log.debug('ConnectionWorker Fehler: %s' % exc)
+                stem.util.log.debug(_('ConnectionWorker error: %s') % exc)
             for _ in range(50):  # 5 Sekunden
                 if self._halt:
                     return
@@ -292,7 +284,7 @@ class ConnectionWorker(QThread):
                     for c in controller.get_circuits([]):
                         circuits[c.id] = c
                 except Exception as exc:
-                    stem.util.log.debug('ConnectionWorker: Circuits nicht abrufbar: %s' % exc)
+                    stem.util.log.debug(_('ConnectionWorker: Circuits not retrievable: %s') % exc)
 
             ct = nyx.tracker.get_consensus_tracker()
 
@@ -321,13 +313,13 @@ class ConnectionWorker(QThread):
                     country = controller.get_info('ip-to-country/%s' % conn.remote_address, '')
                     code = country.upper()
                     entry['country_code'] = code
-                    entry['country'] = COUNTRY_NAMES.get(code, code)
+                    entry['country'] = get_country_name(code)
                 except Exception:
                     pass
 
                 result.append(entry)
         except Exception as exc:
-            stem.util.log.debug('ConnectionWorker._collect Fehler: %s' % exc)
+            stem.util.log.debug(_('ConnectionWorker._collect error: %s') % exc)
 
         return result
 
@@ -336,9 +328,7 @@ class ConnectionWorker(QThread):
 
 
 class ConfigWorker(QThread):
-    """
-    Lädt Tor-Konfigurationsoptionen einmalig beim Start.
-    """
+    """Loads Tor configuration options once at startup."""
 
     config_loaded = pyqtSignal(list)
 
@@ -354,7 +344,7 @@ class ConfigWorker(QThread):
             data = self._collect()
             self.config_loaded.emit(data)
         except Exception as exc:
-            stem.util.log.debug('ConfigWorker Fehler: %s' % exc)
+            stem.util.log.debug(_('ConfigWorker error: %s') % exc)
             self.config_loaded.emit([])
 
     def _collect(self):

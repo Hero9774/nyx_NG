@@ -113,10 +113,10 @@ except ImportError:
 
   sys.exit(1)
 
-__version__ = '1.0'
-__release_date__ = 'January 12, 2019'
-__author__ = 'Damian Johnson'
-__contact__ = 'atagar@torproject.org'
+__version__ = '1.0.1'
+__release_date__ = 'April 22, 2026'
+__author__ = 'H.Ommen'
+__contact__ = 'kalkseniaya@gmail.com'
 __url__ = 'https://nyx.torproject.org/'
 __license__ = 'GPLv3'
 
@@ -149,6 +149,7 @@ CONFIG = stem.util.conf.config_dict('nyx', {
   'show_torrc': True,
   'show_interpreter': True,
   'start_time': 0,
+  'language': 'en',
 }, conf_handler)
 
 NYX_INTERFACE = None
@@ -156,6 +157,39 @@ TOR_CONTROLLER = None
 CACHE = None
 CHROOT = None
 BASE_DIR = os.path.sep.join(__file__.split(os.path.sep)[:-1])
+
+_config_path = None  # set by starter.py after argument parsing
+
+
+def set_language(lang):
+  """Activate *lang* and persist it to the user config file."""
+  import nyx.i18n as _i18n
+  _i18n.set_language(lang)
+  CONFIG['language'] = lang
+  path = _config_path or os.path.join(os.path.expanduser('~/.nyx'), 'nyxrc')
+  _write_config_key(path, 'language', lang)
+
+
+def _write_config_key(path, key, value):
+  """Update or append a ``key value`` line in the nyxrc file."""
+  try:
+    lines = []
+    if os.path.exists(path):
+      with open(path, encoding='utf-8') as f:
+        lines = f.readlines()
+    target = '%s %s\n' % (key, value)
+    for i, line in enumerate(lines):
+      s = line.strip()
+      if s.startswith(key + ' ') or s == key:
+        lines[i] = target
+        break
+    else:
+      lines.append(target)
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+      f.writelines(lines)
+  except OSError as exc:
+    stem.util.log.warn('Could not save language preference: %s' % exc)
 
 # our address infrequently changes so we can cache it for a while
 

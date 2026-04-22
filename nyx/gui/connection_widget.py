@@ -2,7 +2,7 @@
 # See LICENSE for licensing information
 
 """
-Verbindungsliste: zeigt aktive Tor-Verbindungen als sortierbare Tabelle.
+Connection list: displays active Tor connections as a sortable table.
 """
 
 from PyQt6.QtWidgets import (
@@ -15,14 +15,15 @@ from PyQt6.QtGui import QColor, QFont, QIcon
 
 from nyx.gui.theme import CONNECTION_COLORS
 from nyx.flags import get_flag_pixmap
+from nyx.i18n import _
 
 
 class _DetailDialog(QDialog):
-    """Zeigt Details zu einer Verbindung."""
+    """Shows details for a connection."""
 
     def __init__(self, data, parent=None):
         super().__init__(parent)
-        self.setWindowTitle('Verbindungsdetails')
+        self.setWindowTitle(_('Connection Details'))
         self.setMinimumSize(500, 300)
 
         layout = QVBoxLayout(self)
@@ -30,15 +31,17 @@ class _DetailDialog(QDialog):
         text.setReadOnly(True)
         text.setFont(QFont('Courier New', 11))
 
-        lines = [
-            'Typ:          %s' % data.get('type', ''),
-            'Lokal:        %s' % data.get('local', ''),
-            'Remote:       %s' % data.get('remote', ''),
-            'Fingerprint:  %s' % data.get('fingerprint', '–'),
-            'Nickname:     %s' % data.get('nickname', '–'),
-            'Land:         %s' % (data.get('country') or data.get('country_code') or '–'),
-            'Laufzeit:     %ss' % data.get('uptime', 0),
+        fields = [
+            (_('Type'),        data.get('type', '')),
+            (_('Local'),       data.get('local', '')),
+            (_('Remote'),      data.get('remote', '')),
+            ('Fingerprint',    data.get('fingerprint', '–')),
+            ('Nickname',       data.get('nickname', '–')),
+            (_('Country'),     data.get('country') or data.get('country_code') or '–'),
+            (_('Uptime'),      '%ss' % data.get('uptime', 0)),
         ]
+        width = max(len(k) for k, v in fields)
+        lines = ['%-*s  %s' % (width, k + ':', v) for k, v in fields]
         text.setPlainText('\n'.join(lines))
         layout.addWidget(text)
 
@@ -48,11 +51,8 @@ class _DetailDialog(QDialog):
 
 
 class ConnectionWidget(QWidget):
-    """
-    Tab-Widget für aktive Tor-Verbindungen.
-    """
+    """Tab widget for active Tor connections."""
 
-    COLUMNS = ['Typ', 'Lokal', 'Remote', 'Nickname', 'Land', 'Laufzeit']
     _DEFAULT_PROPORTIONS = [0.08, 0.20, 0.20, 0.18, 0.20, 0.14]
 
     def __init__(self, parent=None):
@@ -66,25 +66,24 @@ class ConnectionWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
 
-        # Toolbar
         toolbar = QHBoxLayout()
-        toolbar.addWidget(QLabel('Suche:'))
+        toolbar.addWidget(QLabel(_('Search:')))
 
         self._search = QLineEdit()
-        self._search.setPlaceholderText('IP, Nickname, Land…')
+        self._search.setPlaceholderText(_('IP, Nickname, Country…'))
         self._search.setMaximumWidth(250)
         self._search.textChanged.connect(self._apply_filter)
         toolbar.addWidget(self._search)
 
         toolbar.addStretch()
-        self._count_label = QLabel('0 Verbindungen')
+        self._count_label = QLabel(_('0 connections'))
         self._count_label.setStyleSheet('color: #6666aa;')
         toolbar.addWidget(self._count_label)
         layout.addLayout(toolbar)
 
-        # Tabelle
-        self._table = QTableWidget(0, len(self.COLUMNS))
-        self._table.setHorizontalHeaderLabels(self.COLUMNS)
+        columns = [_('Type'), _('Local'), _('Remote'), 'Nickname', _('Country'), _('Uptime')]
+        self._table = QTableWidget(0, len(columns))
+        self._table.setHorizontalHeaderLabels(columns)
         self._table.setFont(QFont('Courier New', 11))
         self._table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -148,9 +147,7 @@ class ConnectionWidget(QWidget):
             dlg.exec()
 
     def update_connections(self, connections):
-        """
-        Wird vom ConnectionWorker aufgerufen (Signal-Slot).
-        """
+        """Called by ConnectionWorker via signal-slot."""
         self._current_data = connections
         self._table.setSortingEnabled(False)
         self._table.setRowCount(len(connections))
@@ -181,9 +178,8 @@ class ConnectionWidget(QWidget):
                 self._table.setItem(row, col, item)
 
         self._table.setSortingEnabled(True)
-        self._count_label.setText('%d Verbindungen' % len(connections))
+        self._count_label.setText(_('%d connections') % len(connections))
 
-        # Laufenden Filter erneut anwenden
         text = self._search.text()
         if text:
             self._apply_filter(text)

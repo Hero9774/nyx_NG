@@ -1,10 +1,12 @@
 # Nyx can be customized through a configuration file with the following
 # options.
 #
-# Place your configuration at ~/.nyx/config or run with the following to
+# Place your configuration at ~/.nyx/nyxrc or run with the following to
 # apply the settings...
 #
-#   % nyx --config /path/to/config
+#   % nyx --config /path/to/nyxrc
+
+language en                 # Interface language: en (English) or de (German).
 
 data_directory ~/.nyx   # Caching location, can be set to 'disabled'.
 password none           # Control port password of tor.

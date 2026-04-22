@@ -17,7 +17,7 @@ import stem.util.connection
 DEFAULT_ARGS = {
   'control_port': ('127.0.0.1', 'default'),
   'control_socket': '/var/run/tor/control',
-  'config': os.path.join(os.path.expanduser('~/.nyx'), 'config'),
+  'config': os.path.join(os.path.expanduser('~/.nyx'), 'nyxrc'),
   'debug_path': None,
   'logged_events': 'NOTICE,WARN,ERR,NYX_NOTICE,NYX_WARNING,NYX_ERROR',
   'print_version': False,

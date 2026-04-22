@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Lädt alle 4x3-SVG-Flaggen von lipis/flag-icons (GitHub) in nyx/flags/.
-Einmalig ausführen, danach sind die SVGs versioniert im Paket enthalten.
+Downloads all 4x3 SVG flags from lipis/flag-icons (GitHub) into nyx/flags/.
+Run once; the SVGs are then versioned inside the package.
 
     python tools/download_flags.py
 """
@@ -12,7 +12,7 @@ import urllib.request
 
 BASE_URL = 'https://raw.githubusercontent.com/lipis/flag-icons/main/flags/4x3/{code}.svg'
 
-# Alle ISO-3166-1-Alpha-2-Codes (inkl. häufig genutzter Sondercodes)
+# All ISO-3166-1 alpha-2 codes (including commonly used special codes)
 CODES = [
     'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
     'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi',
@@ -50,21 +50,21 @@ def main():
         dest = os.path.join(out_dir, '%s.svg' % code)
         if os.path.exists(dest):
             ok += 1
-            print('[%3d/%d] vorhanden   %s' % (i, total, code))
+            print('[%3d/%d] exists       %s' % (i, total, code))
             continue
 
         url = BASE_URL.format(code=code)
         try:
             urllib.request.urlretrieve(url, dest)
             ok += 1
-            print('[%3d/%d] heruntergeladen  %s' % (i, total, code))
+            print('[%3d/%d] downloaded   %s' % (i, total, code))
         except Exception as e:
             fail.append(code)
-            print('[%3d/%d] FEHLER  %s  – %s' % (i, total, code, e), file=sys.stderr)
+            print('[%3d/%d] ERROR  %s  – %s' % (i, total, code, e), file=sys.stderr)
 
-    print('\nFertig: %d/%d erfolgreich.' % (ok, total))
+    print('\nDone: %d/%d successful.' % (ok, total))
     if fail:
-        print('Fehlgeschlagen: %s' % ', '.join(fail))
+        print('Failed: %s' % ', '.join(fail))
 
 
 if __name__ == '__main__':

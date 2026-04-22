@@ -2,11 +2,11 @@
 # See LICENSE for licensing information
 
 """
-Hilfsfunktionen zur Anzeige von Ländernamen und Flaggen-Emojis
-aus ISO-3166-1-Alpha-2-Ländercodes.
+Helper functions for displaying country names and flag emojis
+from ISO-3166-1 alpha-2 country codes.
 """
 
-COUNTRY_NAMES = {
+COUNTRY_NAMES_DE = {
     'AD': 'Andorra', 'AE': 'Vereinigte Arabische Emirate', 'AF': 'Afghanistan',
     'AG': 'Antigua und Barbuda', 'AL': 'Albanien', 'AM': 'Armenien',
     'AO': 'Angola', 'AR': 'Argentinien', 'AT': 'Österreich',
@@ -73,21 +73,26 @@ COUNTRY_NAMES = {
 
 
 def flag_emoji(code):
-    """Erstellt das Flaggen-Emoji aus einem 2-Buchstaben-ISO-Ländercode."""
+    """Returns the flag emoji for a 2-letter ISO country code."""
     code = code.upper()
     if len(code) != 2 or not code.isalpha():
         return ''
     return ''.join(chr(0x1F1E6 + ord(c) - ord('A')) for c in code)
 
 
+def get_country_name(code):
+    """Return a localised country name for *code*, falling back to the code itself."""
+    from nyx.i18n import get_language
+    if get_language() == 'de':
+        return COUNTRY_NAMES_DE.get(code, code)
+    return code
+
+
 def country_display(code):
-    """
-    Gibt 'FLAG Ländername' zurück, z. B. '🇩🇪 Deutschland'.
-    Fällt auf 'FLAG CODE' zurück, wenn der Name unbekannt ist.
-    """
+    """Returns 'FLAG name' for *code*, e.g. '🇩🇪 Germany'."""
     if not code:
         return '–'
     code = code.upper()
     flag = flag_emoji(code)
-    name = COUNTRY_NAMES.get(code, code)
+    name = get_country_name(code)
     return '%s %s' % (flag, name)

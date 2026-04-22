@@ -7,7 +7,9 @@ Menu for controlling nyx.
 
 import functools
 
+import nyx
 import nyx.curses
+import nyx.i18n
 import nyx.popups
 
 import stem
@@ -245,12 +247,22 @@ def _make_menu():
     if submenu:
       root_menu.add(submenu)
 
+  root_menu.add(_language_menu())
+
   root_menu.add(Submenu('Help', [
     MenuItem('Hotkeys', nyx.popups.show_help),
     MenuItem('About', nyx.popups.show_about),
   ]))
 
   return root_menu
+
+
+def _language_menu():
+  lang_group = RadioGroup(nyx.set_language, nyx.i18n.get_language())
+  return Submenu('Language', [
+    RadioMenuItem('English', lang_group, 'en'),
+    RadioMenuItem('Deutsch', lang_group, 'de'),
+  ])
 
 
 def _view_menu():

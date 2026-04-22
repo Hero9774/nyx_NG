@@ -2,13 +2,15 @@
 # See LICENSE for licensing information
 
 """
-Header-Widget: zeigt Tor-Status, Version, CPU, RAM und Relay-Flags.
+Header widget: displays Tor status, version, CPU, RAM and relay flags.
 """
 
 import time
 
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
 from PyQt6.QtCore import Qt
+
+from nyx.i18n import _
 
 
 def _format_uptime(seconds):
@@ -42,9 +44,7 @@ class _Separator(QFrame):
 
 
 class HeaderWidget(QWidget):
-    """
-    Zeigt dauerhaft den Tor-Status in der Toolbar an.
-    """
+    """Permanently displays Tor status in the toolbar."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -55,86 +55,76 @@ class HeaderWidget(QWidget):
         layout.setContentsMargins(8, 4, 8, 4)
         layout.setSpacing(8)
 
-        # Status-Indikator
         self._status_dot = QLabel('●')
         self._status_dot.setObjectName('status_disconnected')
-        self._status_dot.setToolTip('Verbindungsstatus')
+        self._status_dot.setToolTip(_('Connection status'))
         layout.addWidget(self._status_dot)
 
-        self._status_text = QLabel('Getrennt')
+        self._status_text = QLabel(_('Disconnected'))
         self._status_text.setObjectName('status_label')
         layout.addWidget(self._status_text)
 
         layout.addWidget(_Separator())
 
-        # Version
         self._version_label = QLabel('Tor –')
         self._version_label.setObjectName('status_label')
-        self._version_label.setToolTip('Tor-Version')
+        self._version_label.setToolTip(_('Tor version'))
         layout.addWidget(self._version_label)
 
         layout.addWidget(_Separator())
 
-        # Nickname / Fingerprint
         self._nick_label = QLabel('–')
         self._nick_label.setObjectName('status_label')
-        self._nick_label.setToolTip('Relay-Nickname')
+        self._nick_label.setToolTip(_('Relay nickname'))
         layout.addWidget(self._nick_label)
 
         layout.addWidget(_Separator())
 
-        # CPU
         self._cpu_label = QLabel('CPU: –')
         self._cpu_label.setObjectName('status_label')
-        self._cpu_label.setToolTip('Tor CPU-Auslastung')
+        self._cpu_label.setToolTip(_('Tor CPU usage'))
         layout.addWidget(self._cpu_label)
 
         layout.addWidget(_Separator())
 
-        # RAM
         self._ram_label = QLabel('RAM: –')
         self._ram_label.setObjectName('status_label')
-        self._ram_label.setToolTip('Tor Speicherverbrauch')
+        self._ram_label.setToolTip(_('Tor memory usage'))
         layout.addWidget(self._ram_label)
 
         layout.addWidget(_Separator())
 
-        # Laufzeit
-        self._uptime_label = QLabel('Laufzeit: –')
+        self._uptime_label = QLabel(_('Uptime: –'))
         self._uptime_label.setObjectName('status_label')
-        self._uptime_label.setToolTip('Laufzeit des Tor-Prozesses')
+        self._uptime_label.setToolTip(_('Tor process uptime'))
         layout.addWidget(self._uptime_label)
 
         layout.addWidget(_Separator())
 
-        # Flags
         self._flags_label = QLabel('')
         self._flags_label.setObjectName('status_label')
-        self._flags_label.setToolTip('Relay-Flags aus dem Konsens')
+        self._flags_label.setToolTip(_('Relay flags from consensus'))
         layout.addWidget(self._flags_label)
 
         layout.addStretch()
 
-        # ORPort
         self._port_label = QLabel('')
         self._port_label.setObjectName('status_label')
-        self._port_label.setToolTip('ORPort / DirPort')
+        self._port_label.setToolTip(_('ORPort / DirPort'))
         layout.addWidget(self._port_label)
 
     def update_status(self, data):
-        """
-        Aktualisiert alle Labels mit den Daten aus HeaderWorker.
-        """
+        """Updates all labels with data from HeaderWorker."""
         connected = data.get('connected', False)
 
         if connected:
             self._status_dot.setObjectName('status_connected')
             self._status_dot.setStyleSheet('color: #2ecc71; font-weight: bold;')
-            self._status_text.setText('Verbunden')
+            self._status_text.setText(_('Connected'))
         else:
             self._status_dot.setObjectName('status_disconnected')
             self._status_dot.setStyleSheet('color: #e74c3c; font-weight: bold;')
-            self._status_text.setText('Getrennt')
+            self._status_text.setText(_('Disconnected'))
             return
 
         version = data.get('version', '')
@@ -157,7 +147,7 @@ class HeaderWidget(QWidget):
 
         uptime = data.get('uptime', 0)
         if uptime:
-            self._uptime_label.setText('Laufzeit: %s' % _format_uptime(uptime))
+            self._uptime_label.setText(_('Uptime: %s') % _format_uptime(uptime))
 
         flags = data.get('flags', [])
         if flags:
