@@ -113,8 +113,8 @@ except ImportError:
 
   sys.exit(1)
 
-__version__ = '1.0.1'
-__release_date__ = 'April 22, 2026'
+__version__ = '1.0.2'
+__release_date__ = 'April 26, 2026'
 __author__ = 'H.Ommen'
 __contact__ = 'kalkseniaya@gmail.com'
 __url__ = 'https://nyx.torproject.org/'

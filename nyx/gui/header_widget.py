@@ -12,6 +12,24 @@ from PyQt6.QtCore import Qt
 
 from nyx.i18n import _
 
+VERSION_STATUS_COLORS = {
+    'recommended':    '#2ecc71',
+    'new':            '#3498db',
+    'new in series':  '#3498db',
+    'obsolete':       '#e74c3c',
+    'old':            '#e74c3c',
+    'unrecommended':  '#e74c3c',
+    'unknown':        '#c0c0d8',
+}
+
+FLAG_COLORS = {
+    'Authority': '#e0e0e0', 'BadExit': '#e74c3c', 'BadDirectory': '#e74c3c',
+    'Exit': '#1abc9c', 'Fast': '#f39c12', 'Guard': '#2ecc71',
+    'HSDir': '#9b59b6', 'Named': '#3498db', 'Stable': '#3498db',
+    'Running': '#2ecc71', 'Unnamed': '#9b59b6', 'Valid': '#2ecc71',
+    'V2Dir': '#1abc9c', 'V3Dir': '#e0e0e0',
+}
+
 
 def _format_uptime(seconds):
     if seconds < 60:
@@ -61,7 +79,7 @@ class HeaderWidget(QWidget):
         layout.addWidget(self._status_dot)
 
         self._status_text = QLabel(_('Disconnected'))
-        self._status_text.setObjectName('status_label')
+        self._status_text.setObjectName('status_text')
         layout.addWidget(self._status_text)
 
         layout.addWidget(_Separator())
@@ -104,6 +122,7 @@ class HeaderWidget(QWidget):
         self._flags_label = QLabel('')
         self._flags_label.setObjectName('status_label')
         self._flags_label.setToolTip(_('Relay flags from consensus'))
+        self._flags_label.setTextFormat(Qt.TextFormat.RichText)
         layout.addWidget(self._flags_label)
 
         layout.addStretch()
@@ -121,14 +140,20 @@ class HeaderWidget(QWidget):
             self._status_dot.setObjectName('status_connected')
             self._status_dot.setStyleSheet('color: #2ecc71; font-weight: bold;')
             self._status_text.setText(_('Connected'))
+            self._status_text.setStyleSheet('color: #ffffff; font-weight: bold; font-size: 14px;')
         else:
             self._status_dot.setObjectName('status_disconnected')
             self._status_dot.setStyleSheet('color: #e74c3c; font-weight: bold;')
             self._status_text.setText(_('Disconnected'))
+            self._status_text.setStyleSheet('color: #e74c3c; font-weight: bold; font-size: 14px;')
             return
 
         version = data.get('version', '')
+        version_status = data.get('version_status', 'unknown')
+        version_color = VERSION_STATUS_COLORS.get(version_status, '#c0c0d8')
         self._version_label.setText('Tor %s' % version if version else 'Tor –')
+        self._version_label.setStyleSheet('color: %s;' % version_color)
+        self._version_label.setToolTip(_('Tor version') + ' (%s)' % version_status)
 
         nickname = data.get('nickname', '')
         fingerprint = data.get('fingerprint', '')
@@ -139,11 +164,25 @@ class HeaderWidget(QWidget):
             self._nick_label.setText(nick_text)
 
         cpu = data.get('cpu', 0.0)
+        if cpu >= 80:
+            cpu_color = '#e74c3c'
+        elif cpu >= 50:
+            cpu_color = '#f39c12'
+        else:
+            cpu_color = '#2ecc71'
         self._cpu_label.setText('CPU: %.1f%%' % cpu)
+        self._cpu_label.setStyleSheet('color: %s;' % cpu_color)
 
         memory = data.get('memory', 0)
         mem_pct = data.get('memory_percent', 0.0)
+        if mem_pct >= 80:
+            ram_color = '#e74c3c'
+        elif mem_pct >= 50:
+            ram_color = '#f39c12'
+        else:
+            ram_color = '#2ecc71'
         self._ram_label.setText('RAM: %s (%.1f%%)' % (_format_bytes(memory), mem_pct))
+        self._ram_label.setStyleSheet('color: %s;' % ram_color)
 
         uptime = data.get('uptime', 0)
         if uptime:
@@ -151,7 +190,11 @@ class HeaderWidget(QWidget):
 
         flags = data.get('flags', [])
         if flags:
-            self._flags_label.setText(' '.join('[%s]' % f for f in flags[:4]))
+            parts = []
+            for f in flags[:4]:
+                color = FLAG_COLORS.get(f, '#c0c0d8')
+                parts.append('[<span style="color: %s; font-weight: bold;">%s</span>]' % (color, f))
+            self._flags_label.setText(' '.join(parts))
         else:
             self._flags_label.setText('')
 

@@ -60,6 +60,7 @@ class HeaderWorker(QThread):
         data = {
             'connected': False,
             'version': '',
+            'version_status': 'unknown',
             'pid': None,
             'nickname': '',
             'fingerprint': '',
@@ -77,6 +78,7 @@ class HeaderWorker(QThread):
 
         data['connected'] = True
         data['version'] = str(controller.get_version(''))
+        data['version_status'] = controller.get_info('status/version/current', 'unknown')
         data['pid'] = controller.get_pid(None)
         data['nickname'] = controller.get_conf('Nickname', 'Unnamed')
         data['fingerprint'] = controller.get_info('fingerprint', '')

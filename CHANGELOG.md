@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.2] – 2026-04-26
+
+### Added
+- `VERSION_STATUS_COLORS` und `FLAG_COLORS` Dicts in `nyx/gui/header_widget.py`
+- Tor-Versionsstatus (`status/version/current`) wird in `HeaderWorker` abgerufen (`nyx/gui/workers.py`)
+
+### Changed
+- Relay-Flags im Header-Widget werden farbig als RichText-HTML dargestellt
+- Tor-Versions-Label zeigt Farbe passend zum Versionsstatus (recommended/obsolete/…)
+- CPU- und RAM-Labels zeigen grün/gelb/rot je nach Auslastung
+- `status_text`-Label bekommt eigenes `objectName` und CSS-Klasse (`nyx/gui/theme.py`)
+- Toolbar in `theme.py`: `border-bottom` auf 2 px, `padding` auf 6 px, `min-height: 38px`
+- `status_label` Farbe von `#a0a0c0` auf `#c0c0d8` angehoben, Schriftgröße auf 13 px
+- Version bumped to 1.0.2
+
 ## [1.0.1] – 2026-04-22
 
 ### Added

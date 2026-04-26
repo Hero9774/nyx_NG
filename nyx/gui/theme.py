@@ -17,9 +17,10 @@ QMainWindow, QWidget {
 /* === Toolbar === */
 QToolBar {
     background-color: #16213e;
-    border-bottom: 1px solid #0f3460;
-    padding: 4px 8px;
+    border-bottom: 2px solid #0f3460;
+    padding: 6px 8px;
     spacing: 8px;
+    min-height: 38px;
 }
 
 /* === Tabs === */
@@ -227,7 +228,14 @@ QLabel#status_disconnected {
 }
 
 QLabel#status_label {
-    color: #a0a0c0;
+    color: #c0c0d8;
+    font-size: 13px;
+}
+
+QLabel#status_text {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 /* === Splitter === */

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nyx"
-version = "1.0.1"
+version = "1.0.2"
 description = "Terminal status monitor for Tor (https://www.torproject.org/)."
 license = {text = "GPLv3"}
 authors = [{name = "H.Ommen", email = "kalkseniaya@gmail.com"}]
