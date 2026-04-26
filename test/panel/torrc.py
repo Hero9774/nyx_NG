@@ -1,10 +1,10 @@
 """
-Unit tests for nyx.panel.torrc.
+Unit tests for nyx_ng.panel.torrc.
 """
 
 import unittest
 
-import nyx.panel.torrc
+import nyx_ng.panel.torrc
 import test
 
 from test import require_curses
@@ -54,36 +54,36 @@ Unable to read our torrc: [Errno 2] No such file or directory: '/path/to/torrc'
 
 class TestGraphPanel(unittest.TestCase):
   @require_curses
-  @patch('nyx.panel.torrc._read_torrc', Mock(return_value = TORRC.splitlines()))
-  @patch('nyx.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
-  @patch('nyx.panel.torrc.tor_controller', Mock())
+  @patch('nyx_ng.panel.torrc._read_torrc', Mock(return_value = TORRC.splitlines()))
+  @patch('nyx_ng.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
+  @patch('nyx_ng.panel.torrc.tor_controller', Mock())
   def test_draw_with_content(self):
-    panel = nyx.panel.torrc.TorrcPanel()
+    panel = nyx_ng.panel.torrc.TorrcPanel()
     self.assertEqual(RENDERED_DEFAULT, test.render(panel._draw).content)
 
   @require_curses
-  @patch('nyx.panel.torrc._read_torrc', Mock(return_value = TORRC.splitlines()))
-  @patch('nyx.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
-  @patch('nyx.panel.torrc.tor_controller', Mock())
+  @patch('nyx_ng.panel.torrc._read_torrc', Mock(return_value = TORRC.splitlines()))
+  @patch('nyx_ng.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
+  @patch('nyx_ng.panel.torrc.tor_controller', Mock())
   def test_draw_without_comments(self):
-    panel = nyx.panel.torrc.TorrcPanel()
+    panel = nyx_ng.panel.torrc.TorrcPanel()
     panel._show_comments = False
     self.assertEqual(RENDERED_WITHOUT_COMMENTS, test.render(panel._draw).content)
 
   @require_curses
-  @patch('nyx.panel.torrc._read_torrc', Mock(return_value = TORRC.splitlines()))
-  @patch('nyx.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
-  @patch('nyx.panel.torrc.tor_controller', Mock())
+  @patch('nyx_ng.panel.torrc._read_torrc', Mock(return_value = TORRC.splitlines()))
+  @patch('nyx_ng.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
+  @patch('nyx_ng.panel.torrc.tor_controller', Mock())
   def test_draw_without_line_numbers(self):
-    panel = nyx.panel.torrc.TorrcPanel()
+    panel = nyx_ng.panel.torrc.TorrcPanel()
     panel._show_line_numbers = False
     self.assertEqual(RENDERED_WITHOUT_LINE_NUMBERS, test.render(panel._draw).content)
 
   @require_curses
-  @patch('nyx.panel.torrc._read_torrc', Mock(side_effect = IOError("[Errno 2] No such file or directory: '/path/to/torrc'")))
-  @patch('nyx.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
-  @patch('nyx.panel.torrc.tor_controller', Mock())
+  @patch('nyx_ng.panel.torrc._read_torrc', Mock(side_effect = IOError("[Errno 2] No such file or directory: '/path/to/torrc'")))
+  @patch('nyx_ng.panel.torrc.expand_path', Mock(return_value = '/path/to/torrc'))
+  @patch('nyx_ng.panel.torrc.tor_controller', Mock())
   def test_draw_with_error(self):
-    panel = nyx.panel.torrc.TorrcPanel()
+    panel = nyx_ng.panel.torrc.TorrcPanel()
     panel._show_line_numbers = False
     self.assertEqual(RENDERED_WITH_ERROR, test.render(panel._draw).content)

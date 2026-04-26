@@ -1,5 +1,5 @@
 """
-Unit tests for nyx.curses. Not entirely sure why this file can't be called
+Unit tests for nyx_ng.curses. Not entirely sure why this file can't be called
 'curses.py' but doing so causes the unittest module to fail internally.
 """
 
@@ -7,12 +7,12 @@ import unittest
 
 import curses
 import curses.ascii
-import nyx.curses
-import nyx.panel.interpreter
+import nyx_ng.curses
+import nyx_ng.panel.interpreter
 import test
 
 from test import require_curses
-from nyx.curses import Color, Attr
+from nyx_ng.curses import Color, Attr
 
 try:
   # added in python 3.3
@@ -90,13 +90,13 @@ def _textbox(x = 0, text = ''):
 
 class TestCurses(unittest.TestCase):
   def test_asci_to_curses(self):
-    self.assertEqual([], nyx.curses.asci_to_curses(''))
-    self.assertEqual([('hi!', ())], nyx.curses.asci_to_curses('hi!'))
-    self.assertEqual([('hi!', (Color.RED,))], nyx.curses.asci_to_curses('\x1b[31mhi!\x1b[0m'))
-    self.assertEqual([('boo', ()), ('hi!', (Color.RED, Attr.BOLD))], nyx.curses.asci_to_curses('boo\x1b[31;1mhi!\x1b[0m'))
-    self.assertEqual([('boo', ()), ('hi', (Color.RED,)), (' dami!', (Color.RED, Attr.BOLD))], nyx.curses.asci_to_curses('boo\x1b[31mhi\x1b[1m dami!\x1b[0m'))
-    self.assertEqual([('boo', ()), ('hi', (Color.RED,)), (' dami!', (Color.BLUE,))], nyx.curses.asci_to_curses('boo\x1b[31mhi\x1b[34m dami!\x1b[0m'))
-    self.assertEqual([('boo', ()), ('hi!', (Color.RED, Attr.BOLD)), ('and bye!', ())], nyx.curses.asci_to_curses('boo\x1b[31;1mhi!\x1b[0mand bye!'))
+    self.assertEqual([], nyx_ng.curses.asci_to_curses(''))
+    self.assertEqual([('hi!', ())], nyx_ng.curses.asci_to_curses('hi!'))
+    self.assertEqual([('hi!', (Color.RED,))], nyx_ng.curses.asci_to_curses('\x1b[31mhi!\x1b[0m'))
+    self.assertEqual([('boo', ()), ('hi!', (Color.RED, Attr.BOLD))], nyx_ng.curses.asci_to_curses('boo\x1b[31;1mhi!\x1b[0m'))
+    self.assertEqual([('boo', ()), ('hi', (Color.RED,)), (' dami!', (Color.RED, Attr.BOLD))], nyx_ng.curses.asci_to_curses('boo\x1b[31mhi\x1b[1m dami!\x1b[0m'))
+    self.assertEqual([('boo', ()), ('hi', (Color.RED,)), (' dami!', (Color.BLUE,))], nyx_ng.curses.asci_to_curses('boo\x1b[31mhi\x1b[34m dami!\x1b[0m'))
+    self.assertEqual([('boo', ()), ('hi!', (Color.RED, Attr.BOLD)), ('and bye!', ())], nyx_ng.curses.asci_to_curses('boo\x1b[31;1mhi!\x1b[0mand bye!'))
 
   @require_curses
   def test_addstr(self):
@@ -152,26 +152,26 @@ class TestCurses(unittest.TestCase):
     self.assertEqual(EXPECTED_SCROLLBAR_BOTTOM, test.render(_draw).content.strip())
 
   def test_handle_key_with_text(self):
-    self.assertEqual(ord('a'), nyx.curses._handle_key(_textbox(), ord('a')))
+    self.assertEqual(ord('a'), nyx_ng.curses._handle_key(_textbox(), ord('a')))
 
   def test_handle_key_with_esc(self):
-    self.assertEqual(curses.ascii.BEL, nyx.curses._handle_key(_textbox(), 27))
+    self.assertEqual(curses.ascii.BEL, nyx_ng.curses._handle_key(_textbox(), 27))
 
   def test_handle_key_with_home(self):
     textbox = _textbox()
-    nyx.curses._handle_key(textbox, curses.KEY_HOME)
+    nyx_ng.curses._handle_key(textbox, curses.KEY_HOME)
     self.assertEquals(call(0, 0), textbox.win.move.call_args)
 
   def test_handle_key_with_end(self):
     textbox = _textbox()
     textbox.gather.return_value = 'Sample Text'
-    nyx.curses._handle_key(textbox, curses.KEY_END)
+    nyx_ng.curses._handle_key(textbox, curses.KEY_END)
     self.assertEquals(call(0, 10), textbox.win.move.call_args)
 
   def test_handle_key_with_right_arrow(self):
     textbox = _textbox()
     textbox.gather.return_value = 'Sample Text'
-    nyx.curses._handle_key(textbox, curses.KEY_RIGHT)
+    nyx_ng.curses._handle_key(textbox, curses.KEY_RIGHT)
 
     # move is called twice, to revert the gather() and move the cursor
 
@@ -181,7 +181,7 @@ class TestCurses(unittest.TestCase):
   def test_handle_key_with_right_arrow_at_end(self):
     textbox = _textbox(x = 10)
     textbox.gather.return_value = 'Sample Text'
-    nyx.curses._handle_key(textbox, curses.KEY_RIGHT)
+    nyx_ng.curses._handle_key(textbox, curses.KEY_RIGHT)
 
     # move is only called to revert the gather()
 
@@ -189,22 +189,22 @@ class TestCurses(unittest.TestCase):
     self.assertEquals(call(0, 10), textbox.win.move.call_args)
 
   def test_handle_key_when_resized(self):
-    self.assertEqual(curses.ascii.BEL, nyx.curses._handle_key(_textbox(), 410))
+    self.assertEqual(curses.ascii.BEL, nyx_ng.curses._handle_key(_textbox(), 410))
 
   def test_handle_tab_completion_no_op(self):
-    result = nyx.curses._handle_tab_completion(no_op_handler, lambda txt_input: ['GETINFO version'], _textbox(), ord('a'))
+    result = nyx_ng.curses._handle_tab_completion(no_op_handler, lambda txt_input: ['GETINFO version'], _textbox(), ord('a'))
     self.assertEqual(ord('a'), result)
 
   def test_handle_tab_completion_no_matches(self):
     textbox = _textbox(text = 'GETINF')
-    result = nyx.curses._handle_tab_completion(no_op_handler, lambda txt_input: [], textbox, 9)
+    result = nyx_ng.curses._handle_tab_completion(no_op_handler, lambda txt_input: [], textbox, 9)
 
     self.assertEqual(None, result)  # consumes input
     self.assertFalse(textbox.win.addstr.called)
 
   def test_handle_tab_completion_single_match(self):
     textbox = _textbox(text = 'GETINF')
-    result = nyx.curses._handle_tab_completion(no_op_handler, lambda txt_input: ['GETINFO version'], textbox, 9)
+    result = nyx_ng.curses._handle_tab_completion(no_op_handler, lambda txt_input: ['GETINFO version'], textbox, 9)
 
     self.assertEqual(None, result)  # consumes input
     self.assertEquals(call(0, 15), textbox.win.move.call_args)  # move cursor to end
@@ -212,28 +212,28 @@ class TestCurses(unittest.TestCase):
 
   def test_handle_tab_completion_multiple_matches(self):
     textbox = _textbox(text = 'GETINF')
-    result = nyx.curses._handle_tab_completion(no_op_handler, lambda txt_input: ['GETINFO version', 'GETINFO info/events'], textbox, 9)
+    result = nyx_ng.curses._handle_tab_completion(no_op_handler, lambda txt_input: ['GETINFO version', 'GETINFO info/events'], textbox, 9)
 
     self.assertEqual(None, result)  # consumes input
     self.assertEquals(call(0, 8), textbox.win.move.call_args)  # move cursor to end
     self.assertEqual(call(0, 0, 'GETINFO '), textbox.win.addstr.call_args)
 
   def test_text_backlog_no_op(self):
-    backlog = nyx.curses._TextBacklog(['GETINFO version'])
+    backlog = nyx_ng.curses._TextBacklog(['GETINFO version'])
     textbox = _textbox()
 
     self.assertEqual(ord('a'), backlog._handler(no_op_handler, textbox, ord('a')))
     self.assertFalse(textbox.win.addstr.called)
 
   def test_text_backlog_fills_history(self):
-    backlog = nyx.curses._TextBacklog(['GETINFO version'])
+    backlog = nyx_ng.curses._TextBacklog(['GETINFO version'])
     textbox = _textbox()
 
     self.assertEqual(None, backlog._handler(no_op_handler, textbox, curses.KEY_UP))
     self.assertEqual(call(0, 0, 'GETINFO version'), textbox.win.addstr.call_args)
 
   def test_text_backlog_remembers_custom_input(self):
-    backlog = nyx.curses._TextBacklog(['GETINFO version'])
+    backlog = nyx_ng.curses._TextBacklog(['GETINFO version'])
     textbox = _textbox(text = 'hello')
 
     self.assertEqual(None, backlog._handler(no_op_handler, textbox, curses.KEY_UP))

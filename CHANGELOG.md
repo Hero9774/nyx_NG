@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.0.3] – 2026-04-26
+
+### Renamed (BREAKING)
+- Python-Modul `nyx` → `nyx_ng`
+- PyPI/Debian-Paket `nyx` → `nyx-ng`
+- CLI-Befehl `nyx` → `nyx-ng`
+- Manpage `nyx.1` → `nyx-ng.1`
+- Begründung: ermöglicht parallele Installation neben dem offiziellen `nyx 2.1.0-3` aus den Debian/Ubuntu-Repositories ohne dpkg/APT-Konflikte
+- `~/.nyx/nyxrc` bleibt als Konfigurationsdatei (kompatibel mit Original-Format)
+
+### Changed
+- Projekt-URL: `https://nyx.torproject.org/` → `https://github.com/Hero9774/nyx_NG`
+- Bug-Tracker: `github.com/torproject/nyx/issues` → `github.com/Hero9774/nyx_NG/issues`
+- About-Popup: „Nyx" → „Nyx NG", Maintainer-Zeile aktualisiert
+- README.md, manpage, web/index.html und web/changelog/index.html auf eigenes Repo umgestellt
+- Tor-Project-Links (Stem, Tor Browser, torrc-Doku) bleiben unverändert
+
+### Fixed
+- `nyx_ng/__init__.py`: `distutils.spawn.find_executable` durch `shutil.which` ersetzt (distutils wurde in Python 3.12 entfernt)
+- `test/cache.py`: `assertRaisesRegexp` durch `assertRaisesRegex` ersetzt (in Python 3.12 entfernt)
+
+### Packaging
+- Neues `nyx-ng_1.0.3-1_all.deb` (kein Conflicts/Replaces nötig — eigenes Paket, eigener Pfad)
+
+### Docs
+- `CLAUDE.md`: Pfade `nyx/tracker/` → `nyx/tracker.py`, `nyx/cache` → `nyx/cache.py` korrigiert
+
 ## [1.0.2] – 2026-04-26
 
 ### Added

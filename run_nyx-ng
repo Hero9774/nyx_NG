@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+# Copyright 2009-2019, Damian Johnson and The Tor Project
+# See LICENSE for licensing information
+
+import sys
+
+import nyx_ng
+import nyx_ng.curses
+
+if __name__ == '__main__':
+  if '--demo-glyphs' in sys.argv:
+    nyx_ng.curses.demo_glyphs()
+  else:
+    nyx_ng.main()

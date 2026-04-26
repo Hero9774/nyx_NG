@@ -1,0 +1,71 @@
+.TH nyx-ng 1 "26 April 2026"
+.SH NAME
+nyx-ng - Tor terminal status monitor (PyQt6 GUI fork)
+
+.SH SYNOPSIS
+nyx-ng [\fIOPTION\fR]
+
+.SH DESCRIPTION
+Nyx NG is a command line interface for Tor (https://www.torproject.org/),
+providing detailed real-time relaying information for...
+
+  * bandwidth, cpu, and memory usage
+  * connection information
+  * tor configuration
+  * event logs
+  * etc
+
+This is a fork of the original nyx by Damian Johnson, adding a PyQt6-based
+graphical interface (--gui), country flag icons, and Python 3.11+ fixes.
+
+As a curses interface Nyx NG is particularly well suited for ssh connections,
+tty terminals, and command-line aficionados to check the status of tor.
+
+Nyx NG can be customized through a configuration file located at
+\fB~/.nyx/nyxrc\fR. For options see
+\fBhttps://github.com/Hero9774/nyx_NG\fR.
+
+.SH OPTIONS
+.TP
+\fB\-i\fR, \fB\-\-interface [ADDRESS:]PORT\fR
+tor control port we should attach to (default is \fB127.0.0.1:9051\fR)
+
+.TP
+\fB\-s\fR, \fB\-\-socket SOCKET_PATH\fR
+tor control socket we should attach to (default is \fB/var/run/tor/control\fR)
+
+.TP
+\fB\-c\fR, \fB\-\-config CONFIG_PATH\fR
+user configuration preferences (default is \fB~/.nyx/nyxrc\fR)
+
+.TP
+\fB\-d\fR, \fB\-\-debug LOG_PATH\fR
+writes all nyx-ng logs to the given location
+
+.TP
+\fB\-l\fR, \fB\-\-log EVENTS\fR
+comma separated list of events to log
+
+.TP
+\fB\-g\fR, \fB\-\-gui\fR
+launch the PyQt6 graphical interface
+
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+provides version information
+
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+provides usage information
+
+.SH FILES
+.TP
+\fB~/.nyx/nyxrc\fR
+Your personal nyx-ng configuration file
+
+.SH AUTHOR
+Forked by H.Ommen <kalkseniaya@gmail.com>.
+Original nyx by Damian Johnson (atagar@torproject.org).
+
+.SH SEE ALSO
+\fBhttps://github.com/Hero9774/nyx_NG\fR

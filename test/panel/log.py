@@ -1,14 +1,14 @@
 """
-Unit tests for nyx.panel.log.
+Unit tests for nyx_ng.panel.log.
 """
 
 import time
 import unittest
 
-import nyx.panel.log
+import nyx_ng.panel.log
 import test
 
-from nyx.log import LogEntry, LogFilters
+from nyx_ng.log import LogEntry, LogFilters
 from test import require_curses
 
 try:
@@ -75,13 +75,13 @@ def entries():
 class TestLogPanel(unittest.TestCase):
   @require_curses
   def test_draw_title(self):
-    rendered = test.render(nyx.panel.log._draw_title, ['NOTICE', 'WARN', 'ERR'], LogFilters())
+    rendered = test.render(nyx_ng.panel.log._draw_title, ['NOTICE', 'WARN', 'ERR'], LogFilters())
     self.assertEqual('Events (NOTICE-ERR):', rendered.content)
 
-    rendered = test.render(nyx.panel.log._draw_title, ['NYX_NOTICE', 'NYX_WARNING', 'NYX_ERROR', 'NOTICE', 'WARN', 'ERR'], LogFilters())
+    rendered = test.render(nyx_ng.panel.log._draw_title, ['NYX_NOTICE', 'NYX_WARNING', 'NYX_ERROR', 'NOTICE', 'WARN', 'ERR'], LogFilters())
     self.assertEqual('Events (TOR/NYX NOTICE-ERR):', rendered.content)
 
-    rendered = test.render(nyx.panel.log._draw_title, ['NYX_DEBUG', 'NYX_INFO', 'NYX_NOTICE', 'NYX_WARNING', 'NYX_ERROR', 'NOTICE', 'WARN', 'ERR'], LogFilters())
+    rendered = test.render(nyx_ng.panel.log._draw_title, ['NYX_DEBUG', 'NYX_INFO', 'NYX_NOTICE', 'NYX_WARNING', 'NYX_ERROR', 'NOTICE', 'WARN', 'ERR'], LogFilters())
     self.assertEqual('Events (NOTICE-ERR, NYX DEBUG-ERR):', rendered.content)
 
   @require_curses
@@ -89,21 +89,21 @@ class TestLogPanel(unittest.TestCase):
     log_filter = LogFilters()
     log_filter.select('stuff*')
 
-    rendered = test.render(nyx.panel.log._draw_title, ['NOTICE', 'WARN', 'ERR'], log_filter)
+    rendered = test.render(nyx_ng.panel.log._draw_title, ['NOTICE', 'WARN', 'ERR'], log_filter)
     self.assertEqual('Events (NOTICE-ERR, filter: stuff*):', rendered.content)
 
   @require_curses
   @patch('time.localtime', Mock(return_value = TIME_STRUCT))
   def test_draw_entry(self):
     entry = LogEntry(NOW, 'NOTICE', 'feeding sulfur to baby dragons is just mean...')
-    rendered = test.render(nyx.panel.log._draw_entry, 0, 0, 80, entry, True)
+    rendered = test.render(nyx_ng.panel.log._draw_entry, 0, 0, 80, entry, True)
     self.assertEqual('16:41:37 [NOTICE] feeding sulfur to baby dragons is just mean...', rendered.content)
 
   @require_curses
   @patch('time.localtime', Mock(return_value = TIME_STRUCT))
   def test_draw_entry_that_wraps(self):
     entry = LogEntry(NOW, 'NOTICE', 'ho hum%s...' % (', ho hum' * 20))
-    rendered = test.render(nyx.panel.log._draw_entry, 0, 0, 80, entry, True)
+    rendered = test.render(nyx_ng.panel.log._draw_entry, 0, 0, 80, entry, True)
     self.assertEqual(EXPECTED_WRAPPED_MSG, rendered.content)
 
   @require_curses
@@ -111,26 +111,26 @@ class TestLogPanel(unittest.TestCase):
   def test_draw_entry_with_duplicates(self):
     entry = LogEntry(NOW, 'NOTICE', 'feeding sulfur to baby dragons is just mean...')
     entry.duplicates = [1, 2]  # only care about the count, not the content
-    rendered = test.render(nyx.panel.log._draw_entry, 0, 0, 80, entry, True)
+    rendered = test.render(nyx_ng.panel.log._draw_entry, 0, 0, 80, entry, True)
     self.assertEqual('16:41:37 [NOTICE] feeding sulfur to baby dragons is just mean...', rendered.content)
 
-    rendered = test.render(nyx.panel.log._draw_entry, 0, 0, 80, entry, False)
+    rendered = test.render(nyx_ng.panel.log._draw_entry, 0, 0, 80, entry, False)
     self.assertEqual('16:41:37 [NOTICE] feeding sulfur to baby dragons is just mean... [1 duplicate\n  hidden]', rendered.content)
 
     entry.duplicates = [1, 2, 3, 4, 5, 6]
-    rendered = test.render(nyx.panel.log._draw_entry, 0, 0, 80, entry, False)
+    rendered = test.render(nyx_ng.panel.log._draw_entry, 0, 0, 80, entry, False)
     self.assertEqual('16:41:37 [NOTICE] feeding sulfur to baby dragons is just mean... [5 duplicates\n  hidden]', rendered.content)
 
   @require_curses
   @patch('time.localtime', Mock(return_value = TIME_STRUCT))
-  @patch('nyx.log.day_count', Mock(return_value = 5))
+  @patch('nyx_ng.log.day_count', Mock(return_value = 5))
   def test_draw_entries(self):
-    rendered = test.render(nyx.panel.log._draw_entries, 0, 0, entries(), True)
+    rendered = test.render(nyx_ng.panel.log._draw_entries, 0, 0, entries(), True)
     self.assertEqual(EXPECTED_ENTRIES, rendered.content)
 
   @require_curses
   @patch('time.localtime', Mock(return_value = TIME_STRUCT))
   @patch('time.strftime', Mock(return_value = 'October 26, 2011'))
   def test_draw_entries_day_dividers(self):
-    rendered = test.render(nyx.panel.log._draw_entries, 0, 0, entries(), True)
+    rendered = test.render(nyx_ng.panel.log._draw_entries, 0, 0, entries(), True)
     self.assertEqual(EXPECTED_ENTRIES_WITH_BORDER, rendered.content)

@@ -1,10 +1,10 @@
 """
-Unit tests for nyx.arguments.
+Unit tests for nyx_ng.arguments.
 """
 
 import unittest
 
-from nyx.arguments import DEFAULT_ARGS, parse, get_help, get_version
+from nyx_ng.arguments import DEFAULT_ARGS, parse, get_help, get_version
 
 
 class TestArgumentParsing(unittest.TestCase):

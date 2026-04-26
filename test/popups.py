@@ -1,14 +1,14 @@
 """
-Unit tests for nyx.popups.
+Unit tests for nyx_ng.popups.
 """
 
 import curses
 import unittest
 
-import nyx
-import nyx.curses
-import nyx.panel
-import nyx.popups
+import nyx_ng
+import nyx_ng.curses
+import nyx_ng.panel
+import nyx_ng.popups
 import test
 
 from test import require_curses, mock_keybindings
@@ -31,13 +31,13 @@ Page 1 Commands:---------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 """.strip()
 
-VERSION_LINE = "Nyx, version %s (released %s)" % (nyx.__version__, nyx.__release_date__)
+VERSION_LINE = "Nyx NG, version %s (released %s)" % (nyx_ng.__version__, nyx_ng.__release_date__)
 
 EXPECTED_ABOUT_POPUP = ("""
 About:-------------------------------------------------------------------------+
 | %-77s|
-|   Written by Damian Johnson (atagar@torproject.org)                          |
-|   Project page: https://nyx.torproject.org/                                  |
+|   Fork by H.Ommen, based on nyx by Damian Johnson                            |
+|   Project page: https://github.com/Hero9774/nyx_NG                           |
 |                                                                              |
 | Released under the GPL v3 (http://www.gnu.org/licenses/gpl.html)             |
 |                                                                              |
@@ -253,55 +253,55 @@ NCGI042p6+7UgCVT1x3WcLnq3ScV//s1wXHrUXa7vi0=
 
 class TestPopups(unittest.TestCase):
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
-  @patch('nyx.popups.nyx_interface')
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups.nyx_interface')
   def test_help(self, nyx_interface_mock):
     header_panel = Mock()
 
     header_panel.key_handlers.return_value = (
-      nyx.panel.KeyHandler('n'),
-      nyx.panel.KeyHandler('r'),
+      nyx_ng.panel.KeyHandler('n'),
+      nyx_ng.panel.KeyHandler('r'),
     )
 
     graph_panel = Mock()
 
     graph_panel.key_handlers.return_value = (
-      nyx.panel.KeyHandler('r', 'resize graph'),
-      nyx.panel.KeyHandler('s', 'graphed stats', current = 'bandwidth'),
-      nyx.panel.KeyHandler('b', 'graph bounds', current = 'local max'),
-      nyx.panel.KeyHandler('i', 'graph update interval', current = 'each second'),
+      nyx_ng.panel.KeyHandler('r', 'resize graph'),
+      nyx_ng.panel.KeyHandler('s', 'graphed stats', current = 'bandwidth'),
+      nyx_ng.panel.KeyHandler('b', 'graph bounds', current = 'local max'),
+      nyx_ng.panel.KeyHandler('i', 'graph update interval', current = 'each second'),
     )
 
     log_panel = Mock()
 
     log_panel.key_handlers.return_value = (
-      nyx.panel.KeyHandler('arrows', 'scroll up and down'),
-      nyx.panel.KeyHandler('a', 'save snapshot of the log'),
-      nyx.panel.KeyHandler('e', 'change logged events'),
-      nyx.panel.KeyHandler('f', 'log regex filter', current = 'disabled'),
-      nyx.panel.KeyHandler('u', 'duplicate log entries', current = 'hidden'),
-      nyx.panel.KeyHandler('c', 'clear event log'),
+      nyx_ng.panel.KeyHandler('arrows', 'scroll up and down'),
+      nyx_ng.panel.KeyHandler('a', 'save snapshot of the log'),
+      nyx_ng.panel.KeyHandler('e', 'change logged events'),
+      nyx_ng.panel.KeyHandler('f', 'log regex filter', current = 'disabled'),
+      nyx_ng.panel.KeyHandler('u', 'duplicate log entries', current = 'hidden'),
+      nyx_ng.panel.KeyHandler('c', 'clear event log'),
     )
 
     nyx_interface_mock().page_panels.return_value = [header_panel, graph_panel, log_panel]
 
-    rendered = test.render(nyx.popups.show_help)
+    rendered = test.render(nyx_ng.popups.show_help)
     self.assertEqual(EXPECTED_HELP_POPUP, rendered.content)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_about(self):
-    rendered = test.render(nyx.popups.show_about)
+    rendered = test.render(nyx_ng.popups.show_about)
     self.assertEqual(EXPECTED_ABOUT_POPUP, rendered.content)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_counts_when_empty(self):
-    rendered = test.render(nyx.popups.show_counts, 'Client Locales', {})
+    rendered = test.render(nyx_ng.popups.show_counts, 'Client Locales', {})
     self.assertEqual(EXPECTED_EMPTY_COUNTS, rendered.content)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_counts(self):
     clients = {
       'fr': 5,
@@ -311,29 +311,29 @@ class TestPopups(unittest.TestCase):
       'de': 41,
     }
 
-    rendered = test.render(nyx.popups.show_counts, 'Client Locales', clients, fill_char = '*')
+    rendered = test.render(nyx_ng.popups.show_counts, 'Client Locales', clients, fill_char = '*')
     self.assertEqual(EXPECTED_COUNTS, rendered.content)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_select_from_list(self):
     options = ['each second', '5 seconds', '30 seconds', 'minutely', '15 minute', '30 minute', 'hourly', 'daily']
-    rendered = test.render(nyx.popups.select_from_list, 'Update Interval:', options, 'each second')
+    rendered = test.render(nyx_ng.popups.select_from_list, 'Update Interval:', options, 'each second')
     self.assertEqual(EXPECTED_LIST_SELECTOR, rendered.content)
     self.assertEqual('each second', rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_select_sort_order(self):
     previous_order = ['Man Page Entry', 'Name', 'Is Set']
     options = ['Name', 'Value', 'Value Type', 'Category', 'Usage', 'Summary', 'Description', 'Man Page Entry', 'Is Set']
 
-    rendered = test.render(nyx.popups.select_sort_order, 'Config Option Ordering:', options, previous_order, {})
+    rendered = test.render(nyx_ng.popups.select_sort_order, 'Config Option Ordering:', options, previous_order, {})
     self.assertEqual(EXPECTED_SORT_DIALOG_START, rendered.content)
     self.assertEqual(None, rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_select_sort_order_usage(self):
     # Use the dialog to make a selection. At the end we render two options as
     # being selected (rather than three) because the act of selecing the third
@@ -341,7 +341,7 @@ class TestPopups(unittest.TestCase):
 
     def draw_func():
       with mock_keybindings(curses.KEY_ENTER, curses.KEY_DOWN, curses.KEY_ENTER, curses.KEY_ENTER):
-        return nyx.popups.select_sort_order('Config Option Ordering:', options, previous_order, {})
+        return nyx_ng.popups.select_sort_order('Config Option Ordering:', options, previous_order, {})
 
     previous_order = ['Man Page Entry', 'Name', 'Is Set']
     options = ['Name', 'Value', 'Value Type', 'Category', 'Usage', 'Summary', 'Description', 'Man Page Entry', 'Is Set']
@@ -351,8 +351,8 @@ class TestPopups(unittest.TestCase):
     self.assertEqual(['Name', 'Summary', 'Description'], rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
-  @patch('nyx.tor_controller')
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.tor_controller')
   def test_select_event_types(self, controller_mock):
     controller = Mock()
     controller.get_info.return_value = 'DEBUG INFO NOTICE WARN ERR CIRC CIRC_MINOR'
@@ -360,15 +360,15 @@ class TestPopups(unittest.TestCase):
 
     def draw_func():
       with mock_keybindings(curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_ENTER):
-        return nyx.popups.select_event_types([])
+        return nyx_ng.popups.select_event_types([])
 
     rendered = test.render(draw_func)
     self.assertEqual(EXPECTED_EVENT_SELECTOR, rendered.content)
     self.assertEqual(set([]), rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
-  @patch('nyx.tor_controller')
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.tor_controller')
   def test_select_event_types_up_down(self, controller_mock):
     controller = Mock()
     controller.get_info.return_value = 'DEBUG INFO NOTICE WARN ERR CIRC CIRC_MINOR STREAM ORCONN BW'
@@ -376,15 +376,15 @@ class TestPopups(unittest.TestCase):
 
     def draw_func():
       with mock_keybindings(curses.KEY_UP, curses.KEY_ENTER, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_ENTER):
-        return nyx.popups.select_event_types([])
+        return nyx_ng.popups.select_event_types([])
 
     rendered = test.render(draw_func)
     self.assertEqual(EXPECTED_EVENT_SELECTOR_UP_DOWN, rendered.content)
     self.assertEqual(set(['DEBUG']), rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
-  @patch('nyx.tor_controller')
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.tor_controller')
   def test_select_event_types_left_right(self, controller_mock):
     controller = Mock()
     controller.get_info.return_value = 'DEBUG INFO NOTICE WARN ERR CIRC CIRC_MINOR STREAM ORCONN BW'
@@ -392,15 +392,15 @@ class TestPopups(unittest.TestCase):
 
     def draw_func():
       with mock_keybindings(curses.KEY_LEFT, curses.KEY_DOWN, curses.KEY_ENTER, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_RIGHT, curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_ENTER):
-        return nyx.popups.select_event_types([])
+        return nyx_ng.popups.select_event_types([])
 
     rendered = test.render(draw_func)
     self.assertEqual(EXPECTED_EVENT_SELECTOR_LEFT_RIGHT, rendered.content)
     self.assertEqual(set(['NYX_DEBUG']), rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
-  @patch('nyx.tor_controller')
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.tor_controller')
   def test_select_event_types_cancel(self, controller_mock):
     controller = Mock()
     controller.get_info.return_value = 'DEBUG INFO NOTICE WARN ERR CIRC CIRC_MINOR STREAM ORCONN BW'
@@ -408,15 +408,15 @@ class TestPopups(unittest.TestCase):
 
     def draw_func():
       with mock_keybindings(curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_RIGHT, curses.KEY_ENTER):
-        return nyx.popups.select_event_types([])
+        return nyx_ng.popups.select_event_types([])
 
     rendered = test.render(draw_func)
     self.assertEqual(EXPECTED_EVENT_SELECTOR_CANCEL, rendered.content)
     self.assertEqual(None, rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
-  @patch('nyx.tor_controller')
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.tor_controller')
   def test_select_event_types_initial_selection(self, controller_mock):
     controller = Mock()
     controller.get_info.return_value = 'DEBUG INFO NOTICE WARN ERR CIRC CIRC_MINOR STREAM ORCONN BW'
@@ -424,38 +424,38 @@ class TestPopups(unittest.TestCase):
 
     def draw_func():
       with mock_keybindings(curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_ENTER):
-        return nyx.popups.select_event_types(['CIRC_MINOR'])
+        return nyx_ng.popups.select_event_types(['CIRC_MINOR'])
 
     rendered = test.render(draw_func)
     self.assertEqual(EXPECTED_EVENT_SELECTOR_INITIAL_SELECTION, rendered.content)
     self.assertEqual(set(['CIRC_MINOR']), rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_confirm_save_torrc(self):
-    rendered = test.render(nyx.popups.confirm_save_torrc, TORRC)
+    rendered = test.render(nyx_ng.popups.confirm_save_torrc, TORRC)
     self.assertEqual(EXPECTED_SAVE_TORRC_CONFIRMATION, rendered.content)
     self.assertEqual(False, rendered.return_value)
 
     def draw_func():
       with mock_keybindings(curses.KEY_LEFT, curses.KEY_ENTER):
-        return nyx.popups.confirm_save_torrc(TORRC)
+        return nyx_ng.popups.confirm_save_torrc(TORRC)
 
     rendered = test.render(draw_func)
     self.assertEqual(EXPECTED_SAVE_TORRC_CONFIRMATION, rendered.content)
     self.assertEqual(True, rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
   def test_descriptor_without_fingerprint(self):
-    rendered = test.render(nyx.popups.show_descriptor, None, nyx.curses.Color.RED, lambda key: key.match('esc'))
+    rendered = test.render(nyx_ng.popups.show_descriptor, None, nyx_ng.curses.Color.RED, lambda key: key.match('esc'))
     self.assertEqual(EXPECTED_DESCRIPTOR_WITHOUT_FINGERPRINT, rendered.content)
-    self.assertEqual(nyx.curses.KeyInput(27), rendered.return_value)
+    self.assertEqual(nyx_ng.curses.KeyInput(27), rendered.return_value)
 
   @require_curses
-  @patch('nyx.popups._top', Mock(return_value = 0))
-  @patch('nyx.popups._descriptor_text', Mock(return_value = DESCRIPTOR_TEXT))
+  @patch('nyx_ng.popups._top', Mock(return_value = 0))
+  @patch('nyx_ng.popups._descriptor_text', Mock(return_value = DESCRIPTOR_TEXT))
   def test_descriptor(self):
-    rendered = test.render(nyx.popups.show_descriptor, '29787760145CD1A473552A2FC64C72A9A130820E', nyx.curses.Color.RED, lambda key: key.match('esc'))
+    rendered = test.render(nyx_ng.popups.show_descriptor, '29787760145CD1A473552A2FC64C72A9A130820E', nyx_ng.curses.Color.RED, lambda key: key.match('esc'))
     self.assertEqual(EXPECTED_DESCRIPTOR, rendered.content)
-    self.assertEqual(nyx.curses.KeyInput(27), rendered.return_value)
+    self.assertEqual(nyx_ng.curses.KeyInput(27), rendered.return_value)

@@ -4,7 +4,7 @@ import subprocess
 import sys
 import unittest
 
-import nyx
+import nyx_ng
 import stem.util.system
 import test
 
@@ -49,7 +49,7 @@ class TestInstallation(unittest.TestCase):
       if not os.path.exists(site_packages):
         self.fail('We should have a site-packages located at: %s' % site_packages)
 
-      self.assertEqual(nyx.__version__, stem.util.system.call([sys.executable, '-c', "import sys;sys.path.insert(0, '%s');import nyx;print(nyx.__version__)" % site_packages])[0])
+      self.assertEqual(nyx_ng.__version__, stem.util.system.call([sys.executable, '-c', "import sys;sys.path.insert(0, '%s');import nyx_ng;print(nyx_ng.__version__)" % site_packages])[0])
 
       process_path = [site_packages] + sys.path
       process = subprocess.Popen(['/tmp/nyx_test/bin/nyx', '--help'], stdout = subprocess.PIPE, env = {'PYTHONPATH': ':'.join(process_path)})
@@ -57,7 +57,7 @@ class TestInstallation(unittest.TestCase):
 
       self.assertTrue(stdout.startswith(b'Usage nyx [OPTION]'))
     finally:
-      for path in ('/tmp/nyx_test', os.path.join(test.NYX_BASE, 'dist'), os.path.join(test.NYX_BASE, 'nyx.egg-info')):
+      for path in ('/tmp/nyx_test', os.path.join(test.NYX_BASE, 'dist'), os.path.join(test.NYX_BASE, 'nyx_ng.egg-info')):
         if os.path.exists(path):
           shutil.rmtree(path)
 

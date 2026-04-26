@@ -1,5 +1,5 @@
 """
-Unit tests for nyx.panel.header.
+Unit tests for nyx_ng.panel.header.
 """
 
 import time
@@ -10,7 +10,7 @@ import stem.exit_policy
 import stem.version
 import stem.util.system
 
-import nyx.panel.header
+import nyx_ng.panel.header
 import test
 
 from test import require_curses
@@ -33,7 +33,7 @@ page 2 / 4 - m: menu, p: pause, h: page help, q: quit
 
 
 def test_sampling():
-  return nyx.panel.header.Sampling(
+  return nyx_ng.panel.header.Sampling(
     retrieved = 1234.5,
     is_connected = True,
     connection_time = 2345.6,
@@ -74,21 +74,21 @@ def test_sampling():
 
 class TestHeaderPanel(unittest.TestCase):
   @require_curses
-  @patch('nyx.panel.header.nyx_interface')
-  @patch('nyx.panel.header.tor_controller')
-  @patch('nyx.panel.header.Sampling.create')
+  @patch('nyx_ng.panel.header.nyx_interface')
+  @patch('nyx_ng.panel.header.tor_controller')
+  @patch('nyx_ng.panel.header.Sampling.create')
   def test_rendering_panel(self, sampling_mock, tor_controller_mock, nyx_interface_mock):
     nyx_interface_mock().is_paused.return_value = False
     nyx_interface_mock().get_page.return_value = 1
     nyx_interface_mock().page_count.return_value = 4
     sampling_mock.return_value = test_sampling()
 
-    panel = nyx.panel.header.HeaderPanel()
+    panel = nyx_ng.panel.header.HeaderPanel()
     self.assertEqual(EXPECTED_PANEL, test.render(panel._draw).content)
 
-  @patch('nyx.panel.header.tor_controller')
-  @patch('nyx.tracker.get_resource_tracker')
-  @patch('nyx.tracker.get_consensus_tracker')
+  @patch('nyx_ng.panel.header.tor_controller')
+  @patch('nyx_ng.tracker.get_resource_tracker')
+  @patch('nyx_ng.tracker.get_consensus_tracker')
   @patch('time.time', Mock(return_value = 1234.5))
   @patch('os.times', Mock(return_value = (0.08, 0.03, 0.0, 0.0, 18759021.31)))
   @patch('os.uname', Mock(return_value = ('Linux', 'odin', '3.5.0-54-generic', '#81~precise1-Ubuntu SMP Tue Jul 15 04:05:58 UTC 2014', 'i686')))
@@ -133,7 +133,7 @@ class TestHeaderPanel(unittest.TestCase):
 
     consensus_tracker_mock().my_router_status_entry.return_value = None
 
-    vals = nyx.panel.header.Sampling.create()
+    vals = nyx_ng.panel.header.Sampling.create()
 
     self.assertEqual(1234.5, vals.retrieved)
     self.assertEqual(True, vals.is_connected)
@@ -166,7 +166,7 @@ class TestHeaderPanel(unittest.TestCase):
     self.assertEqual('Linux 3.5.0-54-generic', vals.platform)
 
   def test_sample_format(self):
-    vals = nyx.panel.header.Sampling(
+    vals = nyx_ng.panel.header.Sampling(
       version = '0.2.8.1',
       version_status = 'unrecommended',
     )
@@ -187,7 +187,7 @@ class TestHeaderPanel(unittest.TestCase):
 
   @require_curses
   def test_draw_platform_section(self):
-    vals = nyx.panel.header.Sampling(
+    vals = nyx_ng.panel.header.Sampling(
       hostname = 'odin',
       platform = 'Linux 3.5.0-54-generic',
       version = '0.2.8.1-alpha-dev',
@@ -207,22 +207,22 @@ class TestHeaderPanel(unittest.TestCase):
     }
 
     for width, expected in test_input.items():
-      self.assertEqual(expected, test.render(nyx.panel.header._draw_platform_section, 0, 0, width, vals).content)
+      self.assertEqual(expected, test.render(nyx_ng.panel.header._draw_platform_section, 0, 0, width, vals).content)
 
   @require_curses
   def test_draw_platform_section_without_version(self):
-    vals = nyx.panel.header.Sampling(
+    vals = nyx_ng.panel.header.Sampling(
       hostname = 'odin',
       platform = 'Linux 3.5.0-54-generic',
       version = 'Unknown',
     )
 
-    rendered = test.render(nyx.panel.header._draw_platform_section, 0, 0, 80, vals)
+    rendered = test.render(nyx_ng.panel.header._draw_platform_section, 0, 0, 80, vals)
     self.assertEqual('nyx - odin (Linux 3.5.0-54-generic)', rendered.content)
 
   @require_curses
   def test_draw_ports_section(self):
-    vals = nyx.panel.header.Sampling(
+    vals = nyx_ng.panel.header.Sampling(
       nickname = 'Unnamed',
       address = '174.21.17.28',
       or_port = '7000',
@@ -239,27 +239,27 @@ class TestHeaderPanel(unittest.TestCase):
     }
 
     for width, expected in test_input.items():
-      self.assertEqual(expected, test.render(nyx.panel.header._draw_ports_section, 0, 0, width, vals).content)
+      self.assertEqual(expected, test.render(nyx_ng.panel.header._draw_ports_section, 0, 0, width, vals).content)
 
   @require_curses
   def test_draw_ports_section_with_relaying(self):
-    vals = nyx.panel.header.Sampling(
+    vals = nyx_ng.panel.header.Sampling(
       control_port = None,
       socket_path = '/path/to/control/socket',
       is_relay = False,
     )
 
-    self.assertEqual('Relaying Disabled, Control Socket: /path/to/control/socket', test.render(nyx.panel.header._draw_ports_section, 0, 0, 80, vals).content)
+    self.assertEqual('Relaying Disabled, Control Socket: /path/to/control/socket', test.render(nyx_ng.panel.header._draw_ports_section, 0, 0, 80, vals).content)
 
   @require_curses
   @patch('time.localtime')
   def test_draw_disconnected(self, localtime_mock):
     localtime_mock.return_value = time.strptime('22:43 04/09/2016', '%H:%M %m/%d/%Y')
-    self.assertEqual('Tor Disconnected (22:43 04/09/2016, press r to reconnect)', test.render(nyx.panel.header._draw_disconnected, 0, 0, 1460267022.231895).content)
+    self.assertEqual('Tor Disconnected (22:43 04/09/2016, press r to reconnect)', test.render(nyx_ng.panel.header._draw_disconnected, 0, 0, 1460267022.231895).content)
 
   @require_curses
   def test_draw_resource_usage(self):
-    vals = nyx.panel.header.Sampling(
+    vals = nyx_ng.panel.header.Sampling(
       start_time = 1460166022.231895,
       connection_time = 1460267022.231895,
       is_connected = False,
@@ -283,11 +283,11 @@ class TestHeaderPanel(unittest.TestCase):
     }
 
     for width, expected in test_input.items():
-      self.assertEqual(expected, test.render(nyx.panel.header._draw_resource_usage, 0, 0, width, vals, None).content)
+      self.assertEqual(expected, test.render(nyx_ng.panel.header._draw_resource_usage, 0, 0, width, vals, None).content)
 
   @require_curses
   def test_draw_fingerprint_and_fd_usage(self):
-    vals = nyx.panel.header.Sampling(
+    vals = nyx_ng.panel.header.Sampling(
       fingerprint = '1A94D1A794FCB2F8B6CBC179EF8FDD4008A98D3B',
       fd_used = None,
     )
@@ -305,7 +305,7 @@ class TestHeaderPanel(unittest.TestCase):
     }
 
     for width, expected in test_input.items():
-      self.assertEqual(expected, test.render(nyx.panel.header._draw_fingerprint_and_fd_usage, 0, 0, width, vals).content)
+      self.assertEqual(expected, test.render(nyx_ng.panel.header._draw_fingerprint_and_fd_usage, 0, 0, width, vals).content)
 
   @require_curses
   def test_draw_fingerprint_and_fd_usage_with_fd_count(self):
@@ -321,38 +321,38 @@ class TestHeaderPanel(unittest.TestCase):
     }
 
     for fd_used, expected in test_input.items():
-      vals = nyx.panel.header.Sampling(
+      vals = nyx_ng.panel.header.Sampling(
         fingerprint = '<stub>',
         fd_used = fd_used,
         fd_limit = 100,
       )
 
-      self.assertEqual(expected, test.render(nyx.panel.header._draw_fingerprint_and_fd_usage, 0, 0, 80, vals).content)
+      self.assertEqual(expected, test.render(nyx_ng.panel.header._draw_fingerprint_and_fd_usage, 0, 0, 80, vals).content)
 
   @require_curses
   def test_draw_flags(self):
-    self.assertEqual('flags: none', test.render(nyx.panel.header._draw_flags, 0, 0, []).content)
-    self.assertEqual('flags: Guard', test.render(nyx.panel.header._draw_flags, 0, 0, ['Guard']).content)
-    self.assertEqual('flags: Running, Exit', test.render(nyx.panel.header._draw_flags, 0, 0, ['Running', 'Exit']).content)
+    self.assertEqual('flags: none', test.render(nyx_ng.panel.header._draw_flags, 0, 0, []).content)
+    self.assertEqual('flags: Guard', test.render(nyx_ng.panel.header._draw_flags, 0, 0, ['Guard']).content)
+    self.assertEqual('flags: Running, Exit', test.render(nyx_ng.panel.header._draw_flags, 0, 0, ['Running', 'Exit']).content)
 
   @require_curses
   def test_draw_exit_policy(self):
-    self.assertEqual('exit policy:', test.render(nyx.panel.header._draw_exit_policy, 0, 0, None).content)
-    self.assertEqual('exit policy: reject *:*', test.render(nyx.panel.header._draw_exit_policy, 0, 0, stem.exit_policy.ExitPolicy('reject *:*')).content)
-    self.assertEqual('exit policy: accept *:80, accept *:443, reject *:*', test.render(nyx.panel.header._draw_exit_policy, 0, 0, stem.exit_policy.ExitPolicy('accept *:80', 'accept *:443', 'reject *:*')).content)
+    self.assertEqual('exit policy:', test.render(nyx_ng.panel.header._draw_exit_policy, 0, 0, None).content)
+    self.assertEqual('exit policy: reject *:*', test.render(nyx_ng.panel.header._draw_exit_policy, 0, 0, stem.exit_policy.ExitPolicy('reject *:*')).content)
+    self.assertEqual('exit policy: accept *:80, accept *:443, reject *:*', test.render(nyx_ng.panel.header._draw_exit_policy, 0, 0, stem.exit_policy.ExitPolicy('accept *:80', 'accept *:443', 'reject *:*')).content)
 
   @require_curses
   def test_draw_newnym_option(self):
-    self.assertEqual("press 'n' for a new identity", test.render(nyx.panel.header._draw_newnym_option, 0, 0, 0).content)
-    self.assertEqual('building circuits, available again in 1 second', test.render(nyx.panel.header._draw_newnym_option, 0, 0, 1).content)
-    self.assertEqual('building circuits, available again in 5 seconds', test.render(nyx.panel.header._draw_newnym_option, 0, 0, 5).content)
+    self.assertEqual("press 'n' for a new identity", test.render(nyx_ng.panel.header._draw_newnym_option, 0, 0, 0).content)
+    self.assertEqual('building circuits, available again in 1 second', test.render(nyx_ng.panel.header._draw_newnym_option, 0, 0, 1).content)
+    self.assertEqual('building circuits, available again in 5 seconds', test.render(nyx_ng.panel.header._draw_newnym_option, 0, 0, 5).content)
 
   @require_curses
-  @patch('nyx.panel.header.nyx_interface')
+  @patch('nyx_ng.panel.header.nyx_interface')
   def test_draw_status(self, nyx_interface_mock):
     nyx_interface_mock().get_page.return_value = 1
     nyx_interface_mock().page_count.return_value = 4
 
-    self.assertEqual('page 2 / 4 - m: menu, p: pause, h: page help, q: quit', test.render(nyx.panel.header._draw_status, 0, 0, False, None).content)
-    self.assertEqual('Paused', test.render(nyx.panel.header._draw_status, 0, 0, True, None).content)
-    self.assertEqual('pepperjack is wonderful!', test.render(nyx.panel.header._draw_status, 0, 0, False, 'pepperjack is wonderful!').content)
+    self.assertEqual('page 2 / 4 - m: menu, p: pause, h: page help, q: quit', test.render(nyx_ng.panel.header._draw_status, 0, 0, False, None).content)
+    self.assertEqual('Paused', test.render(nyx_ng.panel.header._draw_status, 0, 0, True, None).content)
+    self.assertEqual('pepperjack is wonderful!', test.render(nyx_ng.panel.header._draw_status, 0, 0, False, 'pepperjack is wonderful!').content)

@@ -2,4 +2,7 @@
 *.swp
 src/stem/
 build/
+*.egg-info/
+__pycache__/
+*.deb
 

@@ -1,17 +1,17 @@
 import os
 import unittest
 
-import nyx.log
+import nyx_ng.log
 
-from nyx.log import LogGroup, LogEntry
+from nyx_ng.log import LogGroup, LogEntry
 
 
 class TestLogGroup(unittest.TestCase):
   def setUp(self):
-    nyx.log.GROUP_BY_DAY = False
+    nyx_ng.log.GROUP_BY_DAY = False
 
   def tearDown(self):
-    nyx.log.GROUP_BY_DAY = True
+    nyx_ng.log.GROUP_BY_DAY = True
 
   def test_maintains_certain_size(self):
     group = LogGroup(5)
@@ -96,11 +96,11 @@ class TestLogGroup(unittest.TestCase):
     self.assertEqual([False, False, True, True, False], [e.is_duplicate for e in group_items])
 
   def test_deduplication_with_daybreaks(self):
-    nyx.log.GROUP_BY_DAY = True
+    nyx_ng.log.GROUP_BY_DAY = True
     group = LogGroup(100)
     test_log_path = os.path.join(os.path.dirname(__file__), 'data', 'daybreak_deduplication')
 
-    for entry in reversed(list(nyx.log.read_tor_log(test_log_path))):
+    for entry in reversed(list(nyx_ng.log.read_tor_log(test_log_path))):
       group.add(entry)
 
     # Entries should consist of two days of results...

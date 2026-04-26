@@ -1,13 +1,13 @@
 """
-Unit tests for nyx.menu.
+Unit tests for nyx_ng.menu.
 """
 
 import curses
 import unittest
 
-import nyx.curses
+import nyx_ng.curses
 
-from nyx.menu import MenuItem, Submenu, RadioMenuItem, RadioGroup, MenuCursor
+from nyx_ng.menu import MenuItem, Submenu, RadioMenuItem, RadioGroup, MenuCursor
 
 
 class Container(object):
@@ -28,7 +28,7 @@ def menu_cursor(*key_inputs):
   cursor = MenuCursor(INITIAL_SELECTION)
 
   for key in key_inputs:
-    cursor.handle_key(nyx.curses.KeyInput(key))
+    cursor.handle_key(nyx_ng.curses.KeyInput(key))
 
   return cursor
 
@@ -201,42 +201,42 @@ class TestMenuCursor(unittest.TestCase):
 
     for expected in ('Item 1', 'Empty Submenu', 'Inner Submenu', 'Item 2', 'Item 1'):
       self.assertEqual(expected, cursor.selection.label)
-      cursor.handle_key(nyx.curses.KeyInput(curses.KEY_UP))
+      cursor.handle_key(nyx_ng.curses.KeyInput(curses.KEY_UP))
 
   def test_down(self):
     cursor = menu_cursor()
 
     for expected in ('Item 1', 'Item 2', 'Inner Submenu', 'Empty Submenu', 'Item 1'):
       self.assertEqual(expected, cursor.selection.label)
-      cursor.handle_key(nyx.curses.KeyInput(curses.KEY_DOWN))
+      cursor.handle_key(nyx_ng.curses.KeyInput(curses.KEY_DOWN))
 
   def test_left(self):
     cursor = menu_cursor()
 
     for expected in ('Item 1', 'Item 4', 'Item 1'):
       self.assertEqual(expected, cursor.selection.label)
-      cursor.handle_key(nyx.curses.KeyInput(curses.KEY_LEFT))
+      cursor.handle_key(nyx_ng.curses.KeyInput(curses.KEY_LEFT))
 
   def test_left_when_inner_submenu(self):
     cursor = menu_cursor(curses.KEY_DOWN, curses.KEY_DOWN, curses.KEY_RIGHT)
 
     for expected in ('Item 3', 'Inner Submenu', 'Item 4'):
       self.assertEqual(expected, cursor.selection.label)
-      cursor.handle_key(nyx.curses.KeyInput(curses.KEY_LEFT))
+      cursor.handle_key(nyx_ng.curses.KeyInput(curses.KEY_LEFT))
 
   def test_right(self):
     cursor = menu_cursor()
 
     for expected in ('Item 1', 'Item 4', 'Item 1'):
       self.assertEqual(expected, cursor.selection.label)
-      cursor.handle_key(nyx.curses.KeyInput(curses.KEY_RIGHT))
+      cursor.handle_key(nyx_ng.curses.KeyInput(curses.KEY_RIGHT))
 
   def test_right_when_inner_submenu(self):
     cursor = menu_cursor(curses.KEY_DOWN, curses.KEY_DOWN)
 
     for expected in ('Inner Submenu', 'Item 3', 'Item 4', 'Item 1'):
       self.assertEqual(expected, cursor.selection.label)
-      cursor.handle_key(nyx.curses.KeyInput(curses.KEY_RIGHT))
+      cursor.handle_key(nyx_ng.curses.KeyInput(curses.KEY_RIGHT))
 
   def test_esc(self):
     cursor = menu_cursor(27)

@@ -3,9 +3,9 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nyx"
-version = "1.0.2"
-description = "Terminal status monitor for Tor (https://www.torproject.org/)."
+name = "nyx-ng"
+version = "1.0.3"
+description = "Terminal status monitor for Tor (nyx-ng fork with PyQt6 GUI)."
 license = {text = "GPLv3"}
 authors = [{name = "H.Ommen", email = "kalkseniaya@gmail.com"}]
 keywords = ["tor", "onion", "controller"]
@@ -20,13 +20,15 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://nyx.torproject.org/"
+Homepage = "https://github.com/Hero9774/nyx_NG"
+Repository = "https://github.com/Hero9774/nyx_NG"
+Issues = "https://github.com/Hero9774/nyx_NG/issues"
 
 [project.scripts]
-nyx = "nyx:main"
+nyx-ng = "nyx_ng:main"
 
 [tool.setuptools.packages.find]
-include = ["nyx*"]
+include = ["nyx_ng*"]
 
 [tool.setuptools.package-data]
-nyx = ["settings/*", "flags/*.svg", "locale/*.json"]
+nyx_ng = ["settings/*", "flags/*.svg", "locale/*.json"]

@@ -1,5 +1,5 @@
 """
-Unit tests for nyx.cache.
+Unit tests for nyx_ng.cache.
 """
 
 import re
@@ -7,7 +7,7 @@ import tempfile
 import time
 import unittest
 
-import nyx
+import nyx_ng
 
 try:
   # added in python 3.3
@@ -18,15 +18,15 @@ except ImportError:
 
 class TestCache(unittest.TestCase):
   def setUp(self):
-    nyx.CACHE = None  # drop cached database reference
+    nyx_ng.CACHE = None  # drop cached database reference
 
-  @patch('nyx.data_directory', Mock(return_value = None))
+  @patch('nyx_ng.data_directory', Mock(return_value = None))
   def test_memory_cache(self):
     """
     Create a cache in memory.
     """
 
-    cache = nyx.cache()
+    cache = nyx_ng.cache()
     self.assertEqual((0, 'main', ''), cache._query('PRAGMA database_list').fetchone())
 
     with cache.write() as writer:
@@ -40,24 +40,24 @@ class TestCache(unittest.TestCase):
     """
 
     with tempfile.NamedTemporaryFile(suffix = '.sqlite') as tmp:
-      with patch('nyx.data_directory', Mock(return_value = tmp.name)):
-        cache = nyx.cache()
+      with patch('nyx_ng.data_directory', Mock(return_value = tmp.name)):
+        cache = nyx_ng.cache()
         self.assertEqual((0, 'main', tmp.name), cache._query('PRAGMA database_list').fetchone())
 
         with cache.write() as writer:
           writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi')
 
-        nyx.CACHE = None
-        cache = nyx.cache()
+        nyx_ng.CACHE = None
+        cache = nyx_ng.cache()
         self.assertEqual('caersidi', cache.relay_nickname('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66'))
 
-  @patch('nyx.data_directory', Mock(return_value = None))
+  @patch('nyx_ng.data_directory', Mock(return_value = None))
   def test_relays_for_address(self):
     """
     Basic checks for fetching relays by their address.
     """
 
-    cache = nyx.cache()
+    cache = nyx_ng.cache()
 
     with cache.write() as writer:
       writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi1')
@@ -69,13 +69,13 @@ class TestCache(unittest.TestCase):
 
     self.assertEqual({}, cache.relays_for_address('199.254.238.53'))
 
-  @patch('nyx.data_directory', Mock(return_value = None))
+  @patch('nyx_ng.data_directory', Mock(return_value = None))
   def test_relay_nickname(self):
     """
     Basic checks for registering and fetching nicknames.
     """
 
-    cache = nyx.cache()
+    cache = nyx_ng.cache()
 
     with cache.write() as writer:
       writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi')
@@ -88,13 +88,13 @@ class TestCache(unittest.TestCase):
 
     self.assertEqual(None, cache.relay_nickname('66E1D8F00C49820FE8AA26003EC49B6F069E8AE3'))
 
-  @patch('nyx.data_directory', Mock(return_value = None))
+  @patch('nyx_ng.data_directory', Mock(return_value = None))
   def test_relay_address(self):
     """
     Basic checks for registering and fetching nicknames.
     """
 
-    cache = nyx.cache()
+    cache = nyx_ng.cache()
 
     with cache.write() as writer:
       writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi')
@@ -107,7 +107,7 @@ class TestCache(unittest.TestCase):
 
     self.assertEqual(None, cache.relay_address('66E1D8F00C49820FE8AA26003EC49B6F069E8AE3'))
 
-  @patch('nyx.data_directory', Mock(return_value = None))
+  @patch('nyx_ng.data_directory', Mock(return_value = None))
   def test_relays_updated_at(self):
     """
     Basic checks for getting when relay information was last updated.
@@ -116,7 +116,7 @@ class TestCache(unittest.TestCase):
     before = time.time()
     time.sleep(0.01)
 
-    cache = nyx.cache()
+    cache = nyx_ng.cache()
 
     with cache.write() as writer:
       writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi1')
@@ -126,9 +126,9 @@ class TestCache(unittest.TestCase):
 
     self.assertTrue(before < cache.relays_updated_at() < after)
 
-  @patch('nyx.data_directory', Mock(return_value = None))
+  @patch('nyx_ng.data_directory', Mock(return_value = None))
   def test_record_relay_when_updating(self):
-    cache = nyx.cache()
+    cache = nyx_ng.cache()
 
     with cache.write() as writer:
       writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi')
@@ -140,14 +140,14 @@ class TestCache(unittest.TestCase):
 
     self.assertEqual('moria1', cache.relay_nickname('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66'))
 
-  @patch('nyx.data_directory', Mock(return_value = None))
+  @patch('nyx_ng.data_directory', Mock(return_value = None))
   def test_record_relay_when_invalid(self):
     """
     Provide malformed information to record_relay.
     """
 
-    with nyx.cache().write() as writer:
-      self.assertRaisesRegexp(ValueError, re.escape("'blarg' isn't a valid fingerprint"), writer.record_relay, 'blarg', '208.113.165.162', 1443, 'caersidi')
-      self.assertRaisesRegexp(ValueError, re.escape("'blarg' isn't a valid address"), writer.record_relay, '3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', 'blarg', 1443, 'caersidi')
-      self.assertRaisesRegexp(ValueError, re.escape("'blarg' isn't a valid port"), writer.record_relay, '3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 'blarg', 'caersidi')
-      self.assertRaisesRegexp(ValueError, re.escape("'~blarg' isn't a valid nickname"), writer.record_relay, '3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, '~blarg')
+    with nyx_ng.cache().write() as writer:
+      self.assertRaisesRegex(ValueError, re.escape("'blarg' isn't a valid fingerprint"), writer.record_relay, 'blarg', '208.113.165.162', 1443, 'caersidi')
+      self.assertRaisesRegex(ValueError, re.escape("'blarg' isn't a valid address"), writer.record_relay, '3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', 'blarg', 1443, 'caersidi')
+      self.assertRaisesRegex(ValueError, re.escape("'blarg' isn't a valid port"), writer.record_relay, '3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 'blarg', 'caersidi')
+      self.assertRaisesRegex(ValueError, re.escape("'~blarg' isn't a valid nickname"), writer.record_relay, '3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, '~blarg')

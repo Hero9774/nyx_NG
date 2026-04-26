@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from nyx.tracker import Process, PortUsageTracker, _process_for_ports
+from nyx_ng.tracker import Process, PortUsageTracker, _process_for_ports
 
 try:
   # added in python 3.3
@@ -48,7 +48,7 @@ tor     2001 atagar   14u  IPv4  14048      0t0  TCP localhost:9037351->localhos
 
 
 class TestPortUsageTracker(unittest.TestCase):
-  @patch('nyx.tracker.system.call', Mock(return_value = LSOF_OUTPUT.split('\n')))
+  @patch('nyx_ng.tracker.system.call', Mock(return_value = LSOF_OUTPUT.split('\n')))
   def test_process_for_ports(self):
     self.assertEqual({}, _process_for_ports([], []))
     self.assertEqual({80: None, 443: None}, _process_for_ports([80, 443], []))
@@ -56,7 +56,7 @@ class TestPortUsageTracker(unittest.TestCase):
 
     self.assertEqual({37277: Process(2462, 'python'), 51849: Process(2001, 'tor')}, _process_for_ports([37277], [51849]))
 
-  @patch('nyx.tracker.system.call')
+  @patch('nyx_ng.tracker.system.call')
   def test_process_for_ports_malformed(self, call_mock):
     # Issues that are valid, but should result in us not having any content.
 
@@ -85,9 +85,9 @@ class TestPortUsageTracker(unittest.TestCase):
       call_mock.return_value = test_input.split('\n')
       self.assertRaises(IOError, _process_for_ports, [80], [443])
 
-  @patch('nyx.tracker.tor_controller')
-  @patch('nyx.tracker._process_for_ports')
-  @patch('nyx.tracker.system', Mock(return_value = Mock()))
+  @patch('nyx_ng.tracker.tor_controller')
+  @patch('nyx_ng.tracker._process_for_ports')
+  @patch('nyx_ng.tracker.system', Mock(return_value = Mock()))
   def test_fetching_samplings(self, process_for_ports_mock, tor_controller_mock):
     tor_controller_mock().get_pid.return_value = 12345
     process_for_ports_mock.return_value = {37277: 'python', 51849: 'tor'}
@@ -100,9 +100,9 @@ class TestPortUsageTracker(unittest.TestCase):
 
       self.assertEqual({37277: 'python', 51849: 'tor'}, daemon.query([37277, 51849], []))
 
-  @patch('nyx.tracker.tor_controller')
-  @patch('nyx.tracker._process_for_ports')
-  @patch('nyx.tracker.system', Mock(return_value = Mock()))
+  @patch('nyx_ng.tracker.tor_controller')
+  @patch('nyx_ng.tracker._process_for_ports')
+  @patch('nyx_ng.tracker.system', Mock(return_value = Mock()))
   def test_resolver_failover(self, process_for_ports_mock, tor_controller_mock):
     tor_controller_mock().get_pid.return_value = 12345
     process_for_ports_mock.side_effect = IOError()

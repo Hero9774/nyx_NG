@@ -1,8 +1,8 @@
 # Nyx NG — Tor Command-line Monitor
 
-Nyx is a real-time status monitor for [Tor](https://www.torproject.org/) in the terminal. It connects via the Tor Control Port and displays detailed information about bandwidth, connections, logs and the configuration of your relay.
+Nyx NG is a real-time status monitor for [Tor](https://www.torproject.org/) in the terminal. It connects via the Tor Control Port and displays detailed information about bandwidth, connections, logs and the configuration of your relay.
 
-This repository is a fork of the original [nyx](https://git.torproject.org/nyx.git) with the following additions:
+This repository is a fork of the original [nyx](https://gitlab.torproject.org/tpo/core/nyx) with the following additions:
 - **PyQt6 GUI** (`--gui`): graphical interface as an alternative to the terminal view
 - Python 3.11+ compatibility
 
@@ -49,7 +49,7 @@ sudo apt install pipx
 pipx install git+https://github.com/Hero9774/nyx_NG.git
 
 # For GUI mode also inject PyQt6
-pipx inject nyx PyQt6
+pipx inject nyx-ng PyQt6
 ```
 
 ### From source (for development)
@@ -67,14 +67,17 @@ pip install -e .
 pip install PyQt6          # optional, only for --gui
 
 # Start
-nyx
+nyx-ng
 ```
 
-### Debian/Ubuntu package
+### Debian/Ubuntu package (this fork)
 
 ```bash
-sudo apt install nyx       # installs the official version without GUI extension
+sudo dpkg -i nyx-ng_1.0.3-1_all.deb
 ```
+
+The package installs as `nyx-ng` and can coexist with the official `nyx` package
+from the Debian/Ubuntu repositories without conflict.
 
 ---
 
@@ -82,26 +85,26 @@ sudo apt install nyx       # installs the official version without GUI extension
 
 ```bash
 # Start (connects automatically to local Control Port)
-nyx
+nyx-ng
 
 # Graphical interface (PyQt6 required)
-nyx --gui
+nyx-ng --gui
 
 # Specify a different Control Port
-nyx -i 9051
-nyx -i 192.168.1.1:9051
+nyx-ng -i 9051
+nyx-ng -i 192.168.1.1:9051
 
 # Use Unix Domain Socket
-nyx -s /var/run/tor/control
+nyx-ng -s /var/run/tor/control
 
 # Use a custom configuration file
-nyx -c ~/.nyx/nyxrc
+nyx-ng -c ~/.nyx/nyxrc
 
 # Show only specific log events
-nyx -l WARN,ERR
+nyx-ng -l WARN,ERR
 
 # Write debug output to file
-nyx -d /tmp/nyx-debug.log
+nyx-ng -d /tmp/nyx-ng-debug.log
 ```
 
 ---
@@ -117,7 +120,7 @@ nyx -d /tmp/nyx-debug.log
 | `m` | Open menu |
 | `p` | Pause / resume display |
 | `x` | Reload Tor (SIGHUP) |
-| `q` | Quit nyx |
+| `q` | Quit nyx-ng |
 
 ### In the Graph panel
 
@@ -193,7 +196,7 @@ Full commented example: [`nyxrc.sample`](web/nyxrc.sample)
 ## All CLI Options
 
 ```
-nyx [OPTION]
+nyx-ng [OPTION]
 
   -i, --interface [ADDRESS:]PORT   Control Port (default: 127.0.0.1:9051)
   -s, --socket PATH                Unix Domain Socket (default: /var/run/tor/control)
@@ -209,4 +212,4 @@ nyx [OPTION]
 
 ## License
 
-GPLv3 — based on [nyx](https://nyx.torproject.org/) by Damian Johnson and The Tor Project.
+GPLv3 — based on [nyx](https://gitlab.torproject.org/tpo/core/nyx) by Damian Johnson and The Tor Project. Fork at [github.com/Hero9774/nyx_NG](https://github.com/Hero9774/nyx_NG).

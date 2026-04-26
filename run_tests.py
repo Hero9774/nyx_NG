@@ -15,7 +15,7 @@ import stem.util.conf
 import stem.util.system
 import stem.util.test_tools
 
-import nyx
+import nyx_ng
 import test
 
 SRC_PATHS = [os.path.join(test.NYX_BASE, path) for path in (
@@ -27,9 +27,9 @@ SRC_PATHS = [os.path.join(test.NYX_BASE, path) for path in (
 )]
 
 
-@nyx.uses_settings
+@nyx_ng.uses_settings
 def main():
-  nyx.PAUSE_TIME = 0.000001  # make pauses negligibly low since our tests trigger things rapidly
+  nyx_ng.PAUSE_TIME = 0.000001  # make pauses negligibly low since our tests trigger things rapidly
   test_config = stem.util.conf.get_config('test')
   test_config.load(os.path.join(test.NYX_BASE, 'test', 'settings.cfg'))
 

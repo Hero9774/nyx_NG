@@ -1,16 +1,16 @@
 import unittest
 
-import nyx.log
+import nyx_ng.log
 
-from nyx.log import LogEntry
+from nyx_ng.log import LogEntry
 
 
 class TestLogEntry(unittest.TestCase):
   def setUp(self):
-    nyx.log.GROUP_BY_DAY = False
+    nyx_ng.log.GROUP_BY_DAY = False
 
   def tearDown(self):
-    nyx.log.GROUP_BY_DAY = True
+    nyx_ng.log.GROUP_BY_DAY = True
 
   def test_dedup_key_by_messages(self):
     entry = LogEntry(1333738434, 'INFO', 'tor_lockfile_lock(): Locking "/home/atagar/.tor/lock"')

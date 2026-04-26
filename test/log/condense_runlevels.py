@@ -1,6 +1,6 @@
 import unittest
 
-from nyx.log import condense_runlevels
+from nyx_ng.log import condense_runlevels
 
 
 class TestCondenseRunlevels(unittest.TestCase):
