@@ -3,29 +3,29 @@
 ## [1.0.3] – 2026-04-26
 
 ### Renamed (BREAKING)
-- Python-Modul `nyx` → `nyx_ng`
-- PyPI/Debian-Paket `nyx` → `nyx-ng`
-- CLI-Befehl `nyx` → `nyx-ng`
+- Python module `nyx` → `nyx_ng`
+- PyPI/Debian package `nyx` → `nyx-ng`
+- CLI command `nyx` → `nyx-ng`
 - Manpage `nyx.1` → `nyx-ng.1`
-- Begründung: ermöglicht parallele Installation neben dem offiziellen `nyx 2.1.0-3` aus den Debian/Ubuntu-Repositories ohne dpkg/APT-Konflikte
-- `~/.nyx/nyxrc` bleibt als Konfigurationsdatei (kompatibel mit Original-Format)
+- Rationale: enables side-by-side installation with the official `nyx 2.1.0-3` from Debian/Ubuntu repositories without dpkg/APT conflicts
+- `~/.nyx/nyxrc` is kept as the configuration file (compatible with the original format)
 
 ### Changed
-- Projekt-URL: `https://nyx.torproject.org/` → `https://github.com/Hero9774/nyx_NG`
-- Bug-Tracker: `github.com/torproject/nyx/issues` → `github.com/Hero9774/nyx_NG/issues`
-- About-Popup: „Nyx" → „Nyx NG", Maintainer-Zeile aktualisiert
-- README.md, manpage, web/index.html und web/changelog/index.html auf eigenes Repo umgestellt
-- Tor-Project-Links (Stem, Tor Browser, torrc-Doku) bleiben unverändert
+- Project URL: `https://nyx.torproject.org/` → `https://github.com/Hero9774/nyx_NG`
+- Bug tracker: `github.com/torproject/nyx/issues` → `github.com/Hero9774/nyx_NG/issues`
+- About popup: "Nyx" → "Nyx NG", maintainer line updated
+- README.md, manpage, web/index.html and web/changelog/index.html updated to point to this repository
+- Tor Project links (Stem, Tor Browser, torrc docs) left unchanged
 
 ### Fixed
-- `nyx_ng/__init__.py`: `distutils.spawn.find_executable` durch `shutil.which` ersetzt (distutils wurde in Python 3.12 entfernt)
-- `test/cache.py`: `assertRaisesRegexp` durch `assertRaisesRegex` ersetzt (in Python 3.12 entfernt)
+- `nyx_ng/__init__.py`: replaced `distutils.spawn.find_executable` with `shutil.which` (distutils was removed in Python 3.12)
+- `test/cache.py`: replaced `assertRaisesRegexp` with `assertRaisesRegex` (removed in Python 3.12)
 
 ### Packaging
-- Neues `nyx-ng_1.0.3-1_all.deb` (kein Conflicts/Replaces nötig — eigenes Paket, eigener Pfad)
+- New `nyx-ng_1.0.3-1_all.deb` (no Conflicts/Replaces needed — distinct package, distinct install path)
 
 ### Docs
-- `CLAUDE.md`: Pfade `nyx/tracker/` → `nyx/tracker.py`, `nyx/cache` → `nyx/cache.py` korrigiert
+- `CLAUDE.md`: corrected paths `nyx/tracker/` → `nyx/tracker.py`, `nyx/cache` → `nyx/cache.py`
 
 ## [1.0.2] – 2026-04-26
 
