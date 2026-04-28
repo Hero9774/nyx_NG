@@ -7,13 +7,15 @@ Main window of the nyx PyQt6 GUI.
 
 import os
 import signal as posix_signal
+import subprocess
 import sys
 
 from PyQt6.QtWidgets import (
     QMainWindow, QTabWidget, QToolBar, QWidget, QHBoxLayout,
-    QLabel, QPushButton, QMessageBox, QStatusBar, QLineEdit, QSizePolicy
+    QLabel, QPushButton, QMessageBox, QStatusBar, QLineEdit, QSizePolicy,
+    QInputDialog
 )
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QProcess
 from PyQt6.QtGui import QIcon, QAction, QActionGroup
 
 import stem
@@ -46,6 +48,8 @@ class MainWindow(QMainWindow):
         self._controller = controller
         self._workers = []
         self._kill_timer = None
+        self._start_process = None
+        self._status_timer = None
 
         self.setWindowTitle(_('Nyx – Tor Monitor'))
         self.setMinimumSize(900, 600)
@@ -85,6 +89,12 @@ class MainWindow(QMainWindow):
         sep.setMinimumWidth(12)
         toolbar.addWidget(sep)
 
+        self._start_btn = QPushButton(_('START TOR'))
+        self._start_btn.setObjectName('start_button')
+        self._start_btn.setToolTip(_('Start Tor process as debian-tor user'))
+        self._start_btn.clicked.connect(self._start_tor)
+        toolbar.addWidget(self._start_btn)
+
         self._stop_btn = QPushButton(_('STOP TOR'))
         self._stop_btn.setObjectName('stop_button')
         self._stop_btn.setToolTip(_('Safely stop Tor process (SIGTERM → SIGKILL)'))
@@ -112,6 +122,12 @@ class MainWindow(QMainWindow):
         self._statusbar = QStatusBar()
         self._statusbar.showMessage(_('Ready.'))
         self.setStatusBar(self._statusbar)
+
+        self._status_timer = QTimer(self)
+        self._status_timer.setInterval(2000)
+        self._status_timer.timeout.connect(self._update_tor_buttons)
+        self._status_timer.start()
+        self._update_tor_buttons()
 
     def _build_menu(self):
         menubar = self.menuBar()
@@ -225,6 +241,63 @@ class MainWindow(QMainWindow):
         self._connect_btn.setText(_('Connect'))
         self._statusbar.showMessage(_('Connected to control port %d.') % port)
 
+    def _tor_process_running(self):
+        try:
+            result = subprocess.run(['pgrep', '-x', 'tor'], capture_output=True, timeout=2)
+            return result.returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            return False
+
+    def _update_tor_buttons(self):
+        running = self._tor_process_running()
+        self._start_btn.setEnabled(not running)
+        self._stop_btn.setEnabled(running)
+        if running and self._stop_btn.text() in (_('⏹  Tor stopped'), _('⏹  Stopping…')):
+            self._stop_btn.setText(_('STOP TOR'))
+        if not running and self._start_btn.text() == _('▶  Starting…'):
+            self._start_btn.setText(_('START TOR'))
+
+    def _start_tor(self):
+        password, ok = QInputDialog.getText(
+            self,
+            _('Sudo Password'),
+            _('Enter your password to start Tor:'),
+            QLineEdit.EchoMode.Password
+        )
+        if not ok:
+            return
+
+        self._start_btn.setEnabled(False)
+        self._start_btn.setText(_('▶  Starting…'))
+        self._statusbar.showMessage(_('Starting Tor process…'))
+
+        self._start_process = QProcess(self)
+        self._start_process.finished.connect(self._on_start_process_finished)
+        self._start_process.errorOccurred.connect(self._on_start_process_error)
+        self._start_process.start('sudo', ['-S', '-u', 'debian-tor', 'tor'])
+
+        if not self._start_process.waitForStarted(3000):
+            self._statusbar.showMessage(_('Failed to start Tor: process did not start.'))
+            self._start_btn.setText(_('START TOR'))
+            self._update_tor_buttons()
+            del password
+            return
+
+        self._start_process.write((password + '\n').encode())
+        self._start_process.closeWriteChannel()
+        del password
+
+    def _on_start_process_finished(self, exit_code, exit_status):
+        if exit_code != 0 and not self._tor_process_running():
+            self._statusbar.showMessage(_('Failed to start Tor (wrong password or permission denied).'))
+        stem.util.log.notice('Tor start process exited with code %d.' % exit_code)
+        self._update_tor_buttons()
+
+    def _on_start_process_error(self, error):
+        self._statusbar.showMessage(_('Error starting Tor: %s') % str(error))
+        self._start_btn.setText(_('START TOR'))
+        self._update_tor_buttons()
+
     def _stop_tor(self):
         reply = QMessageBox.question(
             self,
@@ -270,6 +343,7 @@ class MainWindow(QMainWindow):
         if not _process_alive(pid):
             self._statusbar.showMessage(_('Tor (PID %d) has exited.') % pid)
             self._stop_btn.setText(_('⏹  Tor stopped'))
+            self._update_tor_buttons()
             return
 
         stem.util.log.notice('Sending SIGTERM to PID %d…' % pid)
@@ -280,6 +354,7 @@ class MainWindow(QMainWindow):
         except ProcessLookupError:
             self._statusbar.showMessage(_('Tor (PID %d) already exited.') % pid)
             self._stop_btn.setText(_('⏹  Tor stopped'))
+            self._update_tor_buttons()
             return
 
         self._kill_timer = QTimer(self)
@@ -295,6 +370,7 @@ class MainWindow(QMainWindow):
         if not _process_alive(pid):
             self._statusbar.showMessage(_('Tor (PID %d) has exited.') % pid)
             self._stop_btn.setText(_('⏹  Tor stopped'))
+            self._update_tor_buttons()
             return
 
         stem.util.log.warn(_('Tor not responding – sending SIGKILL to PID %d.') % pid)
@@ -307,8 +383,11 @@ class MainWindow(QMainWindow):
             self._statusbar.showMessage(_('Tor (PID %d) already exited.') % pid)
 
         self._stop_btn.setText(_('⏹  Tor stopped'))
+        self._update_tor_buttons()
 
     def closeEvent(self, event):
+        if self._status_timer and self._status_timer.isActive():
+            self._status_timer.stop()
         self._stop_workers()
         super().closeEvent(event)
 

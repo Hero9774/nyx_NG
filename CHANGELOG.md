@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.4] – 2026-04-28
+
+### Added
+- **"Start Tor" button** in the GUI toolbar: launches `sudo -S -u debian-tor tor` with a Qt password dialog (masked input). The button is only active when the Tor process is not running.
+- **"Stop Tor" button** is now grayed out when the Tor process is not running.
+- Process state is checked every 2 seconds via `pgrep -x tor`, independent of the control port connection.
+- Green CSS styling for the new `start_button` (active/hover/pressed/disabled states).
+- Disabled styling for `stop_button` when Tor is not running.
+- German translations for all new UI strings.
+
+### Packaging
+- New `nyx-ng_1.0.4-1_all.deb`
+
 ## [1.0.3] – 2026-04-26
 
 ### Renamed (BREAKING)

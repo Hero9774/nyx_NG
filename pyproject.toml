@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nyx-ng"
-version = "1.0.3"
+version = "1.0.4"
 description = "Terminal status monitor for Tor (nyx-ng fork with PyQt6 GUI)."
 license = {text = "GPLv3"}
 authors = [{name = "H.Ommen", email = "kalkseniaya@gmail.com"}]

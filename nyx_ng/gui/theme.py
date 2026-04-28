@@ -83,6 +83,34 @@ QPushButton#stop_button:pressed {
     background-color: #922b21;
 }
 
+QPushButton#stop_button:disabled {
+    background-color: #2a1a1a;
+    color: #555555;
+    border: 1px solid #4a2d2d;
+}
+
+QPushButton#start_button {
+    background-color: #0d4f1c;
+    color: #ffffff;
+    border: 1px solid #27ae60;
+    font-weight: bold;
+    padding: 5px 18px;
+}
+
+QPushButton#start_button:hover {
+    background-color: #27ae60;
+}
+
+QPushButton#start_button:pressed {
+    background-color: #1e8449;
+}
+
+QPushButton#start_button:disabled {
+    background-color: #1a2a1a;
+    color: #555555;
+    border: 1px solid #2d4a2d;
+}
+
 /* === Tabellen === */
 QTableWidget {
     background-color: #1a1a2e;

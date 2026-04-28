@@ -113,8 +113,8 @@ except ImportError:
 
   sys.exit(1)
 
-__version__ = '1.0.3'
-__release_date__ = 'April 26, 2026'
+__version__ = '1.0.4'
+__release_date__ = 'April 28, 2026'
 __author__ = 'H.Ommen'
 __contact__ = 'kalkseniaya@gmail.com'
 __url__ = 'https://github.com/Hero9774/nyx_NG'
