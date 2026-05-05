@@ -31,6 +31,8 @@
 - `nyx_ng/gui/interpreter_widget.py`: removed unused import `QKeyEvent`
 
 ### Packaging
+- `nyx_ng/__main__.py` hinzugefügt: `/usr/bin/nyx-ng` rief `python3 -m nyx_ng` auf,
+  was ohne diese Datei mit „package cannot be directly executed" fehlschlug.
 - New `nyx-ng_1.0.4-2_all.deb`
 
 ## [1.0.4] – 2026-04-28
