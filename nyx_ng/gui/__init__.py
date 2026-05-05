@@ -5,6 +5,7 @@
 PyQt6-based GUI for nyx_ng. Start with: nyx --gui
 """
 
+import os
 import sys
 
 import stem.util.log
@@ -83,6 +84,11 @@ def start_gui(args):
 
     :param args: parsed command line arguments (nyx_ng.arguments.Args)
     """
+    # Suppress a harmless Qt6/Wayland text-input protocol warning that fires
+    # on every menu click: "Got leave event for surface 0x0 with focusing
+    # surface ...".  This is Qt bug QTBUG-99331 and does not affect input.
+    os.environ.setdefault('QT_LOGGING_RULES', 'qt.qpa.wayland.textinput.warning=false')
+
     try:
         from PyQt6.QtWidgets import QApplication, QMessageBox
     except ImportError:

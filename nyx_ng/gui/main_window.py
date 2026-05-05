@@ -148,7 +148,11 @@ class MainWindow(QMainWindow):
 
     def _change_language(self, lang):
         nyx_ng.set_language(lang)
-        self._statusbar.showMessage(_('Language changed. Restart nyx for full effect.'))
+        QMessageBox.information(
+            self,
+            _('Language changed'),
+            _('The language has been saved.\nPlease restart nyx-ng for the change to take full effect.'),
+        )
 
     def _start_workers(self):
         self._disconnect_worker_signals()

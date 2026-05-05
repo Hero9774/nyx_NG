@@ -136,6 +136,7 @@
 
     "View": "Ansicht",
     "Language": "Sprache",
-    "Language changed. Restart nyx for full effect.": "Sprache geändert. Nyx neu starten damit alles übernommen wird."
+    "Language changed": "Sprache geändert",
+    "The language has been saved.\nPlease restart nyx-ng for the change to take full effect.": "Die Sprache wurde gespeichert.\nBitte nyx-ng neu starten damit die Änderung vollständig übernommen wird."
   }
 }
