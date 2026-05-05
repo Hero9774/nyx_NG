@@ -1,5 +1,6 @@
 # Copyright 2011-2020, Damian Johnson and The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Listing of the currently established connections tor has made.
@@ -91,11 +92,17 @@ class Entry(object):
 
   @staticmethod
   def from_circuit(circuit):
-    if circuit not in ENTRY_CACHE:
-      ENTRY_CACHE[circuit] = CircuitEntry(circuit)
+    cache_key = ('circuit', circuit.id)
 
-    ENTRY_CACHE_REFERENCED[circuit] = time.time()
-    return ENTRY_CACHE[circuit]
+    if cache_key not in ENTRY_CACHE:
+      ENTRY_CACHE[cache_key] = CircuitEntry(circuit)
+    else:
+      entry = ENTRY_CACHE[cache_key]
+      entry._circuit = circuit
+      entry._lines = None
+
+    ENTRY_CACHE_REFERENCED[cache_key] = time.time()
+    return ENTRY_CACHE[cache_key]
 
   def __init__(self):
     self._lines = None
@@ -571,6 +578,11 @@ class ConnectionPanel(nyx_ng.panel.DaemonPanel):
           del cache[entry]
         except KeyError:
           pass
+
+    if len(self._counted_connections) > 50000:
+      self._counted_connections.clear()
+      self._client_locale_usage.clear()
+      self._exit_port_usage.clear()
 
     self.redraw()
 

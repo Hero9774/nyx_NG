@@ -1,5 +1,6 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Configuration table: displays Tor options and allows editing.
@@ -8,9 +9,9 @@ Configuration table: displays Tor options and allows editing.
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem,
     QLabel, QLineEdit, QHeaderView, QInputDialog, QMessageBox,
-    QMenu, QCheckBox, QPushButton
+    QMenu, QCheckBox
 )
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
 
 import stem.util.log

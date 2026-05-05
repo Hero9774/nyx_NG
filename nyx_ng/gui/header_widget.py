@@ -1,11 +1,10 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Header widget: displays Tor status, version, CPU, RAM and relay flags.
 """
-
-import time
 
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
 from PyQt6.QtCore import Qt

@@ -1,11 +1,11 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Log panel: displays Tor and nyx log messages with colour coding.
 """
 
-import time
 import datetime
 
 from PyQt6.QtWidgets import (

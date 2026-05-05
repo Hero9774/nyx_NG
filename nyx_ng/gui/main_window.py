@@ -1,5 +1,6 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Main window of the nyx PyQt6 GUI.
@@ -8,15 +9,14 @@ Main window of the nyx PyQt6 GUI.
 import os
 import signal as posix_signal
 import subprocess
-import sys
 
 from PyQt6.QtWidgets import (
-    QMainWindow, QTabWidget, QToolBar, QWidget, QHBoxLayout,
+    QMainWindow, QTabWidget, QToolBar, QWidget,
     QLabel, QPushButton, QMessageBox, QStatusBar, QLineEdit, QSizePolicy,
     QInputDialog
 )
 from PyQt6.QtCore import Qt, QTimer, QProcess
-from PyQt6.QtGui import QIcon, QAction, QActionGroup
+from PyQt6.QtGui import QAction, QActionGroup
 
 import stem
 import stem.connection
@@ -316,11 +316,9 @@ class MainWindow(QMainWindow):
         controller = tor_controller()
         pid = controller.get_pid(None) if controller else None
 
-        halted_via_signal = False
         if controller and controller.is_alive():
             try:
                 controller.signal(stem.Signal.HALT)
-                halted_via_signal = True
                 stem.util.log.notice('HALT signal sent to Tor.')
             except Exception as exc:
                 stem.util.log.warn('Could not send HALT signal: %s' % exc)

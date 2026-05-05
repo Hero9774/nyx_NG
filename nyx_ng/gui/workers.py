@@ -1,5 +1,6 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 QThread workers for async Tor controller queries.
@@ -50,7 +51,7 @@ class HeaderWorker(QThread):
                 self.status_updated.emit(data)
             except Exception as exc:
                 stem.util.log.debug(_('HeaderWorker error: %s') % exc)
-            for _ in range(20):  # 2 Sekunden in 0.1s-Schritten
+            for _i in range(20):  # 2 Sekunden in 0.1s-Schritten
                 if self._halt:
                     return
                 time.sleep(0.1)
@@ -263,7 +264,7 @@ class ConnectionWorker(QThread):
                 self.connections_updated.emit(data)
             except Exception as exc:
                 stem.util.log.debug(_('ConnectionWorker error: %s') % exc)
-            for _ in range(50):  # 5 Sekunden
+            for _i in range(50):  # 5 Sekunden
                 if self._halt:
                     return
                 time.sleep(0.1)

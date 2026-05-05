@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.0.4-2] – 2026-05-05
+
+### Fixed
+- `nyx_ng/panel/connection.py`: Critical memory leak — `Entry.from_circuit()` used
+  `CircuitEvent` objects as dict keys; since stem creates new objects with a fresh
+  `arrived_at` timestamp on every `get_circuits()` call, each 5-second update cycle
+  added a full batch of `CircuitEntry` objects to `ENTRY_CACHE`. At steady state this
+  accumulated ~60× the number of active circuits (5 min TTL ÷ 5 s interval). Fixed by
+  using the stable `circuit.id` string as cache key and updating the existing entry in
+  place instead of inserting a duplicate.
+- `nyx_ng/panel/connection.py`: `_counted_connections` set grew without bound (every
+  unique remote IP address ever seen was stored permanently). Added an upper limit of
+  50 000 entries; when exceeded the set and the associated locale/exit-port statistics
+  are reset.
+
+### Changed
+- Added `SPDX-License-Identifier: GPL-3.0-or-later` and `Copyright 2026,
+  H.Ommen <kalkseniaya@gmail.com>` to all modified source files.
+
+### Lint
+- `nyx_ng/gui/connection_widget.py`: removed unused imports `QPushButton`, `Qt`
+- `nyx_ng/gui/main_window.py`: removed unused imports `sys`, `QHBoxLayout`, `QIcon`;
+  removed unused variable `halted_via_signal`
+- `nyx_ng/gui/workers.py`: renamed loop variable `_` → `_i` to avoid shadowing the
+  `_()` i18n import (affected `HeaderWorker` and `ConnectionWorker`)
+- `nyx_ng/gui/log_widget.py`: removed unused import `time`
+- `nyx_ng/gui/header_widget.py`: removed unused import `time`
+- `nyx_ng/gui/config_widget.py`: removed unused imports `QPushButton`, `QPoint`
+- `nyx_ng/gui/interpreter_widget.py`: removed unused import `QKeyEvent`
+
+### Packaging
+- New `nyx-ng_1.0.4-2_all.deb`
+
 ## [1.0.4] – 2026-04-28
 
 ### Added

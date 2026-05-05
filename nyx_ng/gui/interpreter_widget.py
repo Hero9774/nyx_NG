@@ -1,5 +1,6 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Control port shell: interactive Tor command interpreter.
@@ -10,7 +11,7 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton
 )
 from PyQt6.QtCore import Qt, QThread, QEvent, pyqtSignal
-from PyQt6.QtGui import QColor, QFont, QKeyEvent, QTextCharFormat, QTextCursor
+from PyQt6.QtGui import QColor, QFont, QTextCharFormat, QTextCursor
 
 import stem
 import stem.interpreter.commands

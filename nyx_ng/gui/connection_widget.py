@@ -1,5 +1,6 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Connection list: displays active Tor connections as a sortable table.
@@ -7,10 +8,10 @@ Connection list: displays active Tor connections as a sortable table.
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem,
-    QLabel, QLineEdit, QHeaderView, QDialog, QTextEdit, QPushButton,
+    QLabel, QLineEdit, QHeaderView, QDialog, QTextEdit,
     QDialogButtonBox
 )
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QColor, QFont, QIcon
 
 from nyx_ng.gui.theme import CONNECTION_COLORS
