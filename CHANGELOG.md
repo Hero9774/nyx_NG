@@ -17,7 +17,7 @@
 
 ### Changed
 - Added `SPDX-License-Identifier: GPL-3.0-or-later` and `Copyright 2026,
-  H.Ommen <kalkseniaya@gmail.com>` to all modified source files.
+  H.Ommen <hero67097@gmail.com>` to all modified source files.
 
 ### Lint
 - `nyx_ng/gui/connection_widget.py`: removed unused imports `QPushButton`, `Qt`
@@ -107,7 +107,7 @@
 - `nyx/starter.py`: language loaded from config before UI initialisation
 - `web/nyxrc.sample`: updated path reference and added `language` option
 - All GUI widget strings wrapped with `_()` for translation support
-- Author metadata updated: H.Ommen <kalkseniaya@gmail.com>
+- Author metadata updated: H.Ommen <hero67097@gmail.com>
 - Version bumped to 1.0.1
 
 ### Fixed

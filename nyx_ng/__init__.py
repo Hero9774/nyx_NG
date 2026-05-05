@@ -116,7 +116,7 @@ except ImportError:
 __version__ = '1.0.4'
 __release_date__ = 'April 28, 2026'
 __author__ = 'H.Ommen'
-__contact__ = 'kalkseniaya@gmail.com'
+__contact__ = 'hero67097@gmail.com'
 __url__ = 'https://github.com/Hero9774/nyx_NG'
 __license__ = 'GPLv3'
 

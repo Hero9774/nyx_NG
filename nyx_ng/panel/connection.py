@@ -1,5 +1,5 @@
 # Copyright 2011-2020, Damian Johnson and The Tor Project
-# Copyright 2026, H.Ommen <kalkseniaya@gmail.com>
+# Copyright 2026, H.Ommen <hero67097@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 """
