@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.4-6] – 2026-05-06
+
+### Added
+- `nyx_ng/gui/header_widget.py`: **Info button** right of the Dir-port label.
+  Clicking it opens an About dialog showing the nyx-ng version, author e-mail,
+  GitHub repository link, and the GPL-3.0-or-later licence notice.
+
+### Packaging
+- New `nyx-ng_1.0.4-6_all.deb`
+
 ## [1.0.4-5] – 2026-05-06
 
 ### Fixed

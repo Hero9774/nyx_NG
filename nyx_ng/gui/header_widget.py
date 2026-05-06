@@ -6,9 +6,14 @@
 Header widget: displays Tor status, version, CPU, RAM and relay flags.
 """
 
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
+from PyQt6.QtWidgets import (
+    QWidget, QHBoxLayout, QLabel, QFrame,
+    QPushButton, QDialog, QVBoxLayout, QDialogButtonBox
+)
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 
+import nyx_ng
 from nyx_ng.i18n import _
 
 VERSION_STATUS_COLORS = {
@@ -131,6 +136,21 @@ class HeaderWidget(QWidget):
         self._port_label.setToolTip(_('ORPort / DirPort'))
         layout.addWidget(self._port_label)
 
+        layout.addWidget(_Separator())
+
+        info_btn = QPushButton('Info')
+        info_btn.setFixedWidth(48)
+        info_btn.setFixedHeight(22)
+        info_btn.setStyleSheet(
+            'QPushButton { background: #1a1a2e; color: #8888aa; border: 1px solid #2a2a4a;'
+            ' border-radius: 3px; font-size: 11px; }'
+            'QPushButton:hover { background: #16213e; color: #c0c0d8; }'
+            'QPushButton:pressed { background: #0f3460; }'
+        )
+        info_btn.setToolTip(_('About nyx-ng'))
+        info_btn.clicked.connect(self._show_about)
+        layout.addWidget(info_btn)
+
     def update_status(self, data):
         """Updates all labels with data from HeaderWorker."""
         connected = data.get('connected', False)
@@ -206,3 +226,47 @@ class HeaderWidget(QWidget):
             ports.append('Dir:%s' % dir_port)
         if ports:
             self._port_label.setText(' | '.join(ports))
+
+    def _show_about(self):
+        dlg = QDialog(self)
+        dlg.setWindowTitle(_('About nyx-ng'))
+        dlg.setMinimumWidth(400)
+
+        layout = QVBoxLayout(dlg)
+        layout.setSpacing(10)
+        layout.setContentsMargins(24, 20, 24, 16)
+
+        title = QLabel('nyx-ng  v%s' % nyx_ng.__version__)
+        f = QFont()
+        f.setPointSize(14)
+        f.setBold(True)
+        title.setFont(f)
+        title.setStyleSheet('color: #9b59b6;')
+        layout.addWidget(title)
+
+        body = QLabel(
+            '<p style="color:#c0c0d8; line-height:1.5;">'
+            'Terminal &amp; GUI status monitor for Tor relays.<br><br>'
+            '<b style="color:#8888aa;">Author:</b>  H.Ommen '
+            '&lt;<a href="mailto:hero67097@gmail.com" style="color:#5dade2;">'
+            'hero67097@gmail.com</a>&gt;<br>'
+            '<b style="color:#8888aa;">Repository:</b>  '
+            '<a href="https://github.com/Hero9774/nyx_NG" style="color:#5dade2;">'
+            'github.com/Hero9774/nyx_NG</a><br><br>'
+            '<span style="color:#555577;">Licensed under the '
+            '<b style="color:#8888aa;">GNU General Public License v3.0 or later</b>'
+            ' (GPL-3.0-or-later).<br>'
+            'This program is free software; you may redistribute and/or modify it '
+            'under the terms of the GPL as published by the Free Software Foundation.'
+            '</span></p>'
+        )
+        body.setOpenExternalLinks(True)
+        body.setWordWrap(True)
+        body.setTextFormat(Qt.TextFormat.RichText)
+        layout.addWidget(body)
+
+        btns = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        btns.accepted.connect(dlg.accept)
+        layout.addWidget(btns)
+
+        dlg.exec()
