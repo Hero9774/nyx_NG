@@ -1,11 +1,14 @@
 # Copyright 2024, The Tor Project
-# See LICENSE for licensing information
+# Copyright 2026, H.Ommen <hero67097@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 PyQt6-based GUI for nyx_ng. Start with: nyx --gui
 """
 
 import os
+import re
+import subprocess
 import sys
 
 import stem.util.log
@@ -15,6 +18,30 @@ from nyx_ng.i18n import _
 DEFAULT_PORT = 9030
 
 
+def _read_torrc_control_port():
+    """Returns the ControlPort from /etc/tor/torrc, or None if not found."""
+    try:
+        with open('/etc/tor/torrc', 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('#'):
+                    continue
+                m = re.match(r'^ControlPort\s+(\d+)', line, re.IGNORECASE)
+                if m:
+                    return int(m.group(1))
+    except OSError:
+        pass
+    return None
+
+
+def _tor_is_running():
+    try:
+        result = subprocess.run(['pgrep', '-x', 'tor'], capture_output=True, timeout=2)
+        return result.returncode == 0
+    except Exception:
+        return False
+
+
 def _ask_control_port(app, style):
     """
     Shows a startup dialog to enter the control port.
@@ -22,36 +49,105 @@ def _ask_control_port(app, style):
     """
     from PyQt6.QtWidgets import (
         QDialog, QVBoxLayout, QHBoxLayout, QLabel,
-        QLineEdit, QPushButton, QMessageBox
+        QLineEdit, QPushButton, QMessageBox, QInputDialog
     )
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtCore import Qt, QProcess, QTimer
     from PyQt6.QtGui import QIntValidator
+
+    torrc_port = _read_torrc_control_port()
+    default_port = torrc_port or DEFAULT_PORT
 
     dlg = QDialog()
     dlg.setWindowTitle(_('Nyx – Connection'))
-    dlg.setFixedSize(320, 140)
+    dlg.setMinimumWidth(340)
     dlg.setWindowFlags(dlg.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
 
     layout = QVBoxLayout(dlg)
-    layout.setContentsMargins(20, 20, 20, 16)
-    layout.setSpacing(12)
+    layout.setContentsMargins(20, 16, 20, 16)
+    layout.setSpacing(10)
 
+    # --- Tor status row ---
+    status_row = QHBoxLayout()
+    status_row.addWidget(QLabel(_('Tor-Status:')))
+    status_dot = QLabel()
+    status_row.addWidget(status_dot)
+    status_row.addStretch()
+    layout.addLayout(status_row)
+
+    # --- Control port ---
     layout.addWidget(QLabel(_('Tor Control Port:')))
-
-    port_input = QLineEdit(str(DEFAULT_PORT))
+    port_input = QLineEdit(str(default_port))
     port_input.setValidator(QIntValidator(1, 65535, dlg))
     port_input.selectAll()
     layout.addWidget(port_input)
 
+    # --- Button row ---
     btn_row = QHBoxLayout()
     btn_row.setSpacing(8)
+
+    start_btn = QPushButton(_('Tor starten'))
+    start_btn.setStyleSheet(
+        'QPushButton:enabled { background: #1a4a1a; color: #2ecc71;'
+        ' border: 1px solid #2ecc71; border-radius: 3px; padding: 3px 8px; }'
+        'QPushButton:enabled:hover { background: #1e5c1e; }'
+        'QPushButton:enabled:pressed { background: #0d3a0d; }'
+        'QPushButton:disabled { color: #555566; border: 1px solid #333344;'
+        ' border-radius: 3px; padding: 3px 8px; }'
+    )
+
     cancel_btn = QPushButton(_('Cancel'))
     connect_btn = QPushButton(_('Connect'))
     connect_btn.setDefault(True)
+
+    btn_row.addWidget(start_btn)
     btn_row.addStretch()
     btn_row.addWidget(cancel_btn)
     btn_row.addWidget(connect_btn)
     layout.addLayout(btn_row)
+
+    _proc = [None]
+
+    def _update_status():
+        running = _tor_is_running()
+        if running:
+            status_dot.setText('●  ' + _('aktiv'))
+            status_dot.setStyleSheet('color: #2ecc71; font-weight: bold;')
+        else:
+            status_dot.setText('●  ' + _('inaktiv'))
+            status_dot.setStyleSheet('color: #e74c3c; font-weight: bold;')
+        start_btn.setEnabled(not running)
+        start_btn.setText(_('Tor starten'))
+
+    def _start_tor():
+        password, ok = QInputDialog.getText(
+            dlg,
+            _('Sudo Password'),
+            _('Enter your sudo password to start Tor:'),
+            QLineEdit.EchoMode.Password,
+        )
+        if not ok:
+            return
+
+        start_btn.setEnabled(False)
+        start_btn.setText(_('▶ Startet…'))
+
+        proc = QProcess(dlg)
+        _proc[0] = proc
+        proc.start('sudo', ['-S', '-u', 'debian-tor', 'tor'])
+
+        if not proc.waitForStarted(3000):
+            QMessageBox.warning(dlg, _('Fehler'),
+                                _('Tor konnte nicht gestartet werden.'))
+            _update_status()
+            return
+
+        proc.write((password + '\n').encode())
+        proc.closeWriteChannel()
+        del password
+
+        QTimer.singleShot(3000, _update_status)
+
+    _update_status()
 
     result = [None]
 
@@ -68,6 +164,7 @@ def _ask_control_port(app, style):
         result[0] = port
         dlg.accept()
 
+    start_btn.clicked.connect(_start_tor)
     connect_btn.clicked.connect(_connect)
     cancel_btn.clicked.connect(dlg.reject)
     port_input.returnPressed.connect(_connect)
@@ -84,9 +181,6 @@ def start_gui(args):
 
     :param args: parsed command line arguments (nyx_ng.arguments.Args)
     """
-    # Suppress a harmless Qt6/Wayland text-input protocol warning that fires
-    # on every menu click: "Got leave event for surface 0x0 with focusing
-    # surface ...".  This is Qt bug QTBUG-99331 and does not affect input.
     os.environ.setdefault('QT_LOGGING_RULES', 'qt.qpa.wayland.textinput.warning=false')
 
     try:

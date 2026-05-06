@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.4-7] – 2026-05-07
+
+### Changed
+- `nyx_ng/gui/__init__.py` `_ask_control_port()`: startup connection dialog overhauled:
+  - **ControlPort pre-filled** from `/etc/tor/torrc` (falls back to 9030 if not found)
+  - **Tor status indicator** — colored dot `● aktiv` (green) / `● inaktiv` (red), updated
+    on dialog open and after attempting to start Tor
+  - **"Tor starten" button** — active only when Tor is not running; prompts for sudo
+    password via masked `QInputDialog`, then launches `sudo -S -u debian-tor tor` as a
+    `QProcess` and rechecks status after 3 seconds
+
+### Packaging
+- New `nyx-ng_1.0.4-7_all.deb`
+
 ## [1.0.4-6] – 2026-05-06
 
 ### Added
