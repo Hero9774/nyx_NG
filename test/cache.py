@@ -27,7 +27,7 @@ class TestCache(unittest.TestCase):
     """
 
     cache = nyx_ng.cache()
-    self.assertEqual((0, 'main', ''), cache._query('PRAGMA database_list').fetchone())
+    self.assertEqual((0, 'main', ''), cache._fetchone('PRAGMA database_list'))
 
     with cache.write() as writer:
       writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi')
@@ -42,7 +42,7 @@ class TestCache(unittest.TestCase):
     with tempfile.NamedTemporaryFile(suffix = '.sqlite') as tmp:
       with patch('nyx_ng.data_directory', Mock(return_value = tmp.name)):
         cache = nyx_ng.cache()
-        self.assertEqual((0, 'main', tmp.name), cache._query('PRAGMA database_list').fetchone())
+        self.assertEqual((0, 'main', tmp.name), cache._fetchone('PRAGMA database_list'))
 
         with cache.write() as writer:
           writer.record_relay('3EA8E960F6B94CE30062AA8EF02894C00F8D1E66', '208.113.165.162', 1443, 'caersidi')

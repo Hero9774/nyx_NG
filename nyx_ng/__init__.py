@@ -496,7 +496,7 @@ class Cache(object):
     if cache_path:
       try:
         self._conn = sqlite3.connect(cache_path, check_same_thread = False)
-        schema = self._query('SELECT version FROM schema').fetchone()[0]
+        schema = self._fetchone('SELECT version FROM schema')[0]
       except:
         schema = None
 
@@ -543,7 +543,7 @@ class Cache(object):
 
     result = {}
 
-    for entry in self._query('SELECT or_port, fingerprint FROM relays WHERE address=?', address).fetchall():
+    for entry in self._fetchall('SELECT or_port, fingerprint FROM relays WHERE address=?', address):
       result[entry[0]] = entry[1]
 
     return result
@@ -558,7 +558,7 @@ class Cache(object):
     :returns: **str** with the nickname ("Unnamed" if unset)
     """
 
-    result = self._query('SELECT nickname FROM relays WHERE fingerprint=?', fingerprint).fetchone()
+    result = self._fetchone('SELECT nickname FROM relays WHERE fingerprint=?', fingerprint)
     return result[0] if result else default
 
   def relay_address(self, fingerprint, default = None):
@@ -571,7 +571,7 @@ class Cache(object):
     :returns: **tuple** with a **str** address and **int** port
     """
 
-    result = self._query('SELECT address, or_port FROM relays WHERE fingerprint=?', fingerprint).fetchone()
+    result = self._fetchone('SELECT address, or_port FROM relays WHERE fingerprint=?', fingerprint)
     return result if result else default
 
   def relays_updated_at(self):
@@ -582,15 +582,22 @@ class Cache(object):
       updated, zero if it has never been set
     """
 
-    return self._query('SELECT relays_updated_at FROM metadata').fetchone()[0]
+    return self._fetchone('SELECT relays_updated_at FROM metadata')[0]
 
   def _query(self, query, *param):
-    """
-    Performs a query on our cache.
-    """
-
+    """For INSERT/UPDATE/DELETE — execute inside the lock, no fetch."""
     with self._conn_lock:
-      return self._conn.execute(query, param)
+      self._conn.execute(query, param)
+
+  def _fetchone(self, query, *param):
+    """For SELECT returning one row — execute AND fetch inside the lock."""
+    with self._conn_lock:
+      return self._conn.execute(query, param).fetchone()
+
+  def _fetchall(self, query, *param):
+    """For SELECT returning all rows — execute AND fetch inside the lock."""
+    with self._conn_lock:
+      return self._conn.execute(query, param).fetchall()
 
 
 class CacheWriter(object):

@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.0.4-5] – 2026-05-06
+
+### Fixed
+- `nyx_ng/__init__.py` `Cache._query()`: thread-safety bug — `execute()` was
+  performed inside `_conn_lock` but `fetchall()`/`fetchone()` were called by
+  the caller *outside* the lock. On a busy relay, the `ConsensusTracker` event
+  listener thread could INSERT into the `relays` table between the execute and
+  the fetch in `ConnectionTracker`, corrupting the cursor and producing an
+  empty or single-element tuple — causing the recurring
+  *"BUG: Unexpected exception from ConnectionTracker: tuple index out of range"*
+  crash (`__init__.py:547`, `result[entry[0]] = entry[1]`).
+
+  Fix: split `_query()` into three methods:
+  - `_query(query, *param)` — INSERT/UPDATE/DELETE, no return value
+  - `_fetchone(query, *param)` — SELECT, execute+fetchone inside lock
+  - `_fetchall(query, *param)` — SELECT, execute+fetchall inside lock
+
+  All callers updated. Unit tests updated accordingly.
+
+### Packaging
+- New `nyx-ng_1.0.4-5_all.deb`
+
 ## [1.0.4-4] – 2026-05-06
 
 ### Fixed
