@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.4-3] – 2026-05-06
+
+### Fixed
+- `nyx_ng/gui/interpreter_widget.py`: Shell panel rendered raw ANSI escape
+  sequences as literal text (e.g. `[34m`, `[0m`) instead of applying colours.
+  Added `_print_ansi_line()` which parses ANSI colour/bold codes via regex and
+  inserts each text segment with the corresponding `QTextCharFormat` colour.
+  The curses panel already handled this correctly via `asci_to_curses()`; the
+  GUI now has an equivalent implementation.
+
+### Changed
+- `nyx_ng/gui/interpreter_widget.py`: Hint bar text changed from the command
+  list (`GETINFO, GETCONF, …`) to `/help for more info`; colour raised from
+  `#555577` to `#8888aa` and font size from 10 px to 11 px for better
+  legibility.
+
+### Packaging
+- New `nyx-ng_1.0.4-3_all.deb`
+
 ## [1.0.4-2] – 2026-05-05
 
 ### Fixed

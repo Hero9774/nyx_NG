@@ -6,6 +6,8 @@
 Control port shell: interactive Tor command interpreter.
 """
 
+import re
+
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QLineEdit,
     QLabel, QPushButton
@@ -22,6 +24,19 @@ from nyx_ng import tor_controller
 from nyx_ng.i18n import _
 
 HISTORY_LIMIT = 100
+
+_ANSI_RE = re.compile(r'\x1B\[([0-9;]+)m')
+_ANSI_COLORS = {
+    '30': '#4d4d4d',
+    '31': '#e74c3c',
+    '32': '#2ecc71',
+    '33': '#f1c40f',
+    '34': '#5dade2',
+    '35': '#9b59b6',
+    '36': '#1abc9c',
+    '37': '#ecf0f1',
+}
+_ANSI_DEFAULT = '#e0e0e0'
 
 
 class _CommandRunner(QThread):
@@ -87,8 +102,8 @@ class InterpreterWidget(QWidget):
 
         layout.addLayout(input_layout)
 
-        hint = QLabel(_('↑↓ History  |  Tab: Autocomplete  |  Commands: GETINFO, GETCONF, SIGNAL, SETCONF, …'))
-        hint.setStyleSheet('color: #555577; font-size: 10px;')
+        hint = QLabel(_('↑↓ Verlauf  |  Tab: Autovervollständigung  |  /help für weitere Infos'))
+        hint.setStyleSheet('color: #8888aa; font-size: 11px;')
         layout.addWidget(hint)
 
     def _init_interpreter(self):
@@ -109,6 +124,45 @@ class InterpreterWidget(QWidget):
         fmt = QTextCharFormat()
         fmt.setForeground(QColor(color))
         cursor.insertText(text + '\n', fmt)
+        self._output.setTextCursor(cursor)
+        self._output.ensureCursorVisible()
+
+    def _print_ansi_line(self, text):
+        cursor = self._output.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+
+        pos = 0
+        current_color = _ANSI_DEFAULT
+        bold = False
+
+        for match in _ANSI_RE.finditer(text):
+            if match.start() > pos:
+                fmt = QTextCharFormat()
+                fmt.setForeground(QColor(current_color))
+                if bold:
+                    fmt.setFontWeight(700)
+                cursor.insertText(text[pos:match.start()], fmt)
+
+            codes = match.group(1).split(';')
+            if '0' in codes:
+                current_color = _ANSI_DEFAULT
+                bold = False
+            for code in codes:
+                if code == '1':
+                    bold = True
+                elif code in _ANSI_COLORS:
+                    current_color = _ANSI_COLORS[code]
+
+            pos = match.end()
+
+        if pos < len(text):
+            fmt = QTextCharFormat()
+            fmt.setForeground(QColor(current_color))
+            if bold:
+                fmt.setFontWeight(700)
+            cursor.insertText(text[pos:], fmt)
+
+        cursor.insertText('\n', QTextCharFormat())
         self._output.setTextCursor(cursor)
         self._output.ensureCursorVisible()
 
@@ -137,7 +191,7 @@ class InterpreterWidget(QWidget):
     def _on_result(self, command, response):
         if response:
             for line in response.splitlines():
-                self._print_line(line, '#e0e0e0')
+                self._print_ansi_line(line)
         self._print_line('')
 
     def _clear(self):
