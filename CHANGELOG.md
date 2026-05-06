@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.4-4] – 2026-05-06
+
+### Fixed
+- `nyx_ng/tracker.py` `ConsensusTracker._update()`: malformed or short consensus
+  `r`-lines (fewer than 8 fields) could raise an unhandled `IndexError` or
+  `ValueError` that propagated through `ConnectionTracker._task()` and appeared
+  in the log as *"BUG: Unexpected exception from ConnectionTracker: tuple index
+  out of range"*. Added a length guard (`len(r_comp) < 8 → skip`) and wrapped
+  the per-line parsing and `record_relay()` calls in individual try/except blocks
+  so a single bad line no longer aborts the entire consensus update.
+
+### Changed
+- `nyx_ng/tracker.py` `Daemon` base class: the generic exception handler now
+  logs the full Python traceback (`traceback.format_exc()`) alongside the
+  exception message, making future unhandled bugs in tracker daemons much easier
+  to diagnose.
+
+### Packaging
+- New `nyx-ng_1.0.4-4_all.deb`
+
 ## [1.0.4-3] – 2026-05-06
 
 ### Fixed

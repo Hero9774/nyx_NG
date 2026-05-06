@@ -54,6 +54,7 @@ import collections
 import os
 import time
 import threading
+import traceback
 
 import nyx_ng
 import stem.control
@@ -401,7 +402,7 @@ class Daemon(threading.Thread):
           try:
             is_successful = self._task(self._process_pid, self._process_name)
           except Exception as exc:
-            stem.util.log.notice('BUG: Unexpected exception from %s: %s' % (type(self).__name__, exc))
+            stem.util.log.notice('BUG: Unexpected exception from %s: %s\n%s' % (type(self).__name__, exc, traceback.format_exc()))
 
         if is_successful:
           self._run_counter += 1
@@ -849,16 +850,27 @@ class ConsensusTracker(object):
         if line.startswith('r '):
           r_comp = line.split(' ')
 
-          address = r_comp[6]
-          or_port = int(r_comp[7])
-          fingerprint = stem.descriptor.router_status_entry._base64_to_hex(r_comp[2])
-          nickname = r_comp[1]
+          if len(r_comp) < 8:
+            stem.util.log.debug('Skipping malformed consensus r-line (%d fields): %s' % (len(r_comp), line))
+            continue
+
+          try:
+            address = r_comp[6]
+            or_port = int(r_comp[7])
+            fingerprint = stem.descriptor.router_status_entry._base64_to_hex(r_comp[2])
+            nickname = r_comp[1]
+          except (IndexError, ValueError) as exc:
+            stem.util.log.debug('Unable to parse consensus r-line (%s): %s' % (exc, line))
+            continue
 
           if fingerprint == our_fingerprint:
             self._my_router_status_entry = None
             self._my_router_status_entry_time = 0
 
-          writer.record_relay(fingerprint, address, or_port, nickname)
+          try:
+            writer.record_relay(fingerprint, address, or_port, nickname)
+          except ValueError as exc:
+            stem.util.log.debug('Skipping invalid relay entry (%s): %s' % (exc, line))
 
     stem.util.log.info('Updated consensus cache, took %0.2fs.' % (time.time() - start_time))
 
